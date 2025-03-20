@@ -1,0 +1,18 @@
+Premier chiffrement efficace : le chiffremment de vigenère
+
+-> décalage selon l'orde lexicographique des caractères en fonction d'un mot clé : le décalage est donné par celui de la lettre du mot clé quand on le superpose au texte (a = décalage de 0, b = décalage de 1 ...) - Quand on arrive au bout du mot clé, on reprend à la première lettre de ce dernier
+-> a été vaincu par analyse statistique (grâce à la fréquence d'apparition des lettres en fonction des langues)
+
+Deuxième chifremment : le one time pad (masque jetable)
+
+-> même principe que vigenère, mais avec un mot clé de la longeur du texte : Analyse statistique impossible ! (même pas sûr même si on trouve un texte compréhensible que ça soit le bon)
+-> très dur à mettre en pratique ! (générer des suites aléatoires + les transmettre de manière sûre)
+
+Enigma
+
+-> permet de réliser facilement un chiffrement de Vigenère avec un mot clé long de 17576 lettres choisi parmi 7,6.10¹⁸
+-> mais en réalité, nombre de mots clés générés possibles bien insuffisant par rapport au nombre de mots clés de 17576 lettres possibles ! (c'est Alan Turing qui perça enigma à jour)
+
+L'echec d'Enigma a conduit à un abandon progressif des substitutions polyalphabétiques (on pensait impossible d'avoir un système à la fois pratique et sûr)
+
+En réalité, l'arrivée de l'informatique et des ordinateurs ont énormément renforcé la sécurité et compliqué la tâche de la cryptanalyse
