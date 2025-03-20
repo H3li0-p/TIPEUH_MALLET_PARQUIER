@@ -1,0 +1,20 @@
+1977 : intrduction par les Etats Unis du DES (data encription standard) -> est un shémas de Feistel
+
+-> remplacé en 1997 : compétition pour le nouveau standard de chiffrement
+gagnant : Rinjdael choisi (seul des 5 finalistes qui n'est pas un schémas de Feistel !), qui fut renommé AES (advanced encryption standard
+
+algos de chiffrement par bloc : message clair de longeur fixe (128 bits pour AES) et message crypté de longeur fixe également -> pour chiffrer plus lonng on découpe en blocs de la taille voulue
+
+On peut représenter un algo de chiffrement / un cryptosystème à clé privé = symétrique avec ces éléments :
+-> ensemble M de messages clairs
+-> ensemble C de messages chiffrés
+-> ensemble K des clés
+   -> pour tout k appartenant à K, e : M -> C qui à un texte clair associe un texte chiffré (en fonction de k) : chiffrement
+   -> pour tout k appartenant à K, d : C -> M qui à un texte chiffré associe un texte clair (déchiffrement)
+
+si card(M) = card(C) -> seules fonctions possibles étant les bijections : contraignant car une infime partie des applications possibles entre les ensembles (diminue les possibiilités)
+
+calculatoirement impossible = 2¹²⁸ (def arbitraire posé par les cryptologues)
+voir p.195 ordinateur effectuant les calculs le plus rapidemment en 2019 (c'est pour ça que les clés de AES sont de 128 bits)
+
+
