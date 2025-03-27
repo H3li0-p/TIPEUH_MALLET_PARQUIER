@@ -1,0 +1,7 @@
+1977 : intrduction par les Etats Unis du DES (data encription standard) -> est un shémas de Feistel
+
+-> remplacé en 1997 : compétition pour le nouveau standard de chiffrement
+gagnant : Rinjdael choisi (seul des 5 finalistes qui n'est pas un schémas de Feistel !), qui fut renommé AES (advanced encryption standard
+
+algos de chiffrement par bloc : message clair de longeur fixe (128 bits pour AES) et message crypté de longeur fixe également -> pour chiffrer plus lonng on découpe en blocs de la taille voulue
+
