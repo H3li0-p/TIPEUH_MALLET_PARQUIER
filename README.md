@@ -28,7 +28,8 @@ prise en compte de la distance entre les lieux
 Echelle 2 :
 1 resto
 possiblement plusieurs livreurs - vont toujours à la même vitesse
-prise en compte de la distance entre les lieux
+prise en compte de la distance entre les lieux - clustering
+2 liveurs qui parent en même temps puis qui
 
 Echelle 3 :
 1 resto
