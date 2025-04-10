@@ -5,3 +5,5 @@ implem via matrice d'adjacence x 2 : une avec les poids (seulement triangulaire 
 
 convention lors du calcul d'offset : ligne i puis colonne j
 première formule : tab_triangulaire[i][j] = somme de k=n-i à n de (n - k) + j
+
+https://interstices.info/le-probleme-du-voyageur-de-commerce/ -> algo d'insertion des sommets
