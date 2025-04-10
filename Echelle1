@@ -1,0 +1,7 @@
+Graphe : connexe, non complet, non orienté, avec poids = distance
+Les livreurs vont à une vitesse constante : mobilette à 30 km/h (centre ville)
+
+implem via matrice d'adjacence x 2 : une avec les poids (seulement triangulaire supérieure stockée en mémoire = calcul d'offset particulier à faire), une avec que des 0 / des 1 pour trouver les sommets atteignables - est ce intéressant ?
+
+convention lors du calcul d'offset : ligne i puis colonne j
+première formule : tab_triangulaire[i][j] = somme de k=n-i à n de (n - k) + j
