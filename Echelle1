@@ -3,7 +3,8 @@ Les livreurs vont à une vitesse constante : mobilette à 30 km/h (centre ville)
 capacité pour emmener de la nourriture illimité
 toutes les commandes sont connues au début de la simulation
 
-implem via matrice d'adjacence croissante (les sommets sont triés du plus proche au moins proche - invariant de structure à maintenir, permet de faire l'algo naïf de prendre le voisin le plus proche linéairement en le nb de sommets)
+implem via matrice d'adjacence linéarisé triangulaire + liste croissante (les sommets sont triés du plus proche au moins proche - invariant de structure à maintenir, permet de faire l'algo naïf de prendre le voisin le plus proche linéairement en le nb de sommets)
+(on peut se permettre les deux car on ne va faire aucune opération sur le graphe/ cout d'une matrice d'adjacence classique à peu près)
 
 //non utile - pour si matrice d'adjacence
 convention lors du calcul d'offset : ligne i puis colonne j
@@ -18,7 +19,7 @@ https://interstices.info/le-probleme-du-voyageur-de-commerce/ -> algo d'insertio
 Algos pour établir le parcours du livreur
 
 
-(avant éxécution de l'algo - "épuration du graphe" ? trouver le vrai plus court chemin entre tout les sommets ? -> Djikstra
+(avant éxécution de l'algo - "épuration du graphe" ? trouver le vrai plus court chemin entre tout les sommets ? -> Djikstra #update : en rélité non nécéssaire
 Algo 1: arbre de recherche
 
   entrées : 
@@ -64,8 +65,20 @@ Algo 1: arbre de recherche
   
   potentielle amélioration : si possibilité de faire un passage par adresse, mise à jour de la borne supérieur en cours d'exécution de l'algo,
 
-  *peut mal se comporter sur les maisons avec des distances entres elles faibles, peut être beaucoup d'appels inutiles
+  *peut mal se comporter sur les maisons avec des distances entres elles faibles, peut être beaucoup d'appels
 
+
+Algo 2 : DBSCA (sans bruit) récursif dans des zones à grain modulable (ou tout algo fournissant des zones)
+
+idée :
+- on éxécute le dbsca sur le graphe en entier avec un grand grain (à adapter par rapport aux dimensions du graphe)
+- on récupère chaque zone, et entre chaque zone contenant des sommets à visiter on trouve le + court chemin entre toute ces zones
+- on fait un algo type algo 1 pour trouver quelle est la manière la plus rapide de parcourir ces grandes zones (on ne considère pas à cette étape la distance intra-zone)
+- puis on recommence dans chaque zone, avec un grain de DBSCA différent
+- on met bout à bout les chemins et on obtient un résultat supposément pas trop mauvais
+
+*à trouver = un moyen de calculer le grain de départ et son évolution en fonction du nombre de sommets et de "la superficie de l'espace dans lequel ils sont contennus"
+algo nécessitant pas mal d'essais pour trouver le bon calibrage dans des cas généraux
 
 
 Notes de réflexion / pistes à explorer :
