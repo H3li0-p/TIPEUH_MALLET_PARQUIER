@@ -1,9 +1,74 @@
 Graphe : connexe, non complet, non orienté, avec poids = distance
 Les livreurs vont à une vitesse constante : mobilette à 30 km/h (centre ville)
+capacité pour emmener de la nourriture illimité
+toutes les commandes sont connues au début de la simulation
 
-implem via matrice d'adjacence x 2 : une avec les poids (seulement triangulaire supérieure stockée en mémoire = calcul d'offset particulier à faire), une avec que des 0 / des 1 pour trouver les sommets atteignables - est ce intéressant ?
+implem via matrice d'adjacence croissante (les sommets sont triés du plus proche au moins proche - invariant de structure à maintenir, permet de faire l'algo naïf de prendre le voisin le plus proche linéairement en le nb de sommets)
 
+//non utile - pour si matrice d'adjacence
 convention lors du calcul d'offset : ligne i puis colonne j
 première formule : tab_triangulaire[i][j] = somme de k=n-i à n de (n - k) + j
+//
 
 https://interstices.info/le-probleme-du-voyageur-de-commerce/ -> algo d'insertion des sommets
+
+échelle 1 bis : on considère que l'on a un graphe complet, donc que toutes les maisons sont accessibles en un coup depuis le resto
+
+
+Algos pour établir le parcours du livreur
+
+
+(avant éxécution de l'algo - "épuration du graphe" ? trouver le vrai plus court chemin entre tout les sommets ? -> Djikstra
+Algo 1: arbre de recherche
+
+  entrées : 
+  structure de données implémentant un graphe non orienté pondéré (poids = distance de parcours)
+  liste des sommets à visiter
+  sommet_de_départ (même que celui d'arrivée)
+  sortie :
+  parcours le plus rapide à effectuer (solution exacte)
+
+#préparation pour l'algo récursif
+  (parcours_bete, bornsup) = parcours_bête(graphe_travail) #liste + longeur d'un parcours possible avec algo glouton (du plus proche voisin?)
+  tab_arrêtes_min = construction_liste_des_poids #valeur de toutes les arrêtes dans l'ordre croissant (on parcours la matrice du tableau d'adjacence puis quick_sort) 
+  tab_visited = tableau de booléens mis à false (false = non visité) crée à partir des sommets que l'on souhaite visiter
+
+  algo rec : (entrées = sommet_courant, bornsup, nb_de_sommets_passés, nb_total_sommets, graphe_travail (ne va que lire dans ce tableau), sommet_de_depart, tab_visited (sommets déjà visités), parcours_actuel (liste de sommets), longeur_du_parcours,tab_arrêtes_min)
+    tab_visited [sommet_courant] = true #tab_visited est une variable locale
+    si tout les sommets ont étés visités (nb_de_sommets_passés = nb_total_sommets) #cas d'arrêt
+          ajoute_à_la_liste(parcours_actuel, sommet_de_depart)
+          renvoie (parcours_actuel, (longeur_du_parcours + distance(sommet_courant,sommet_de_depart)))
+
+    sinon #début de la recursivité
+        nb_min = longeur_du_parcours + tab_arrêtes_min[elt 0 à (nb_total_sommets - nb_de_sommets_passés)
+        si (nb_min > bornsup) #chemin à ne pas explorer - autre cas d'arrêt
+            renvoie ([],bornsup + 1)
+        sinon
+            (creation var) récupération = [] #liste qui va récupérer tout les chemins valides et sélectionner
+            (création var) dist_min = bornsup #va stocker le chemin avec la plus petite valeur
+            pour tout sommet i non visité :
+                ajoute_à_la_liste(parcours_actuel, i)
+                enlever_à_la_liste(tab_arrêtes_min, distance(sommet_courant,i)
+                (liste,length) = algo rec (i, dist_min, (nb_de_sommets_passé + 1), nb_total_sommets, graphe_travail, sommet_de_départ, tab_visited, parcours_actuel, (longeur_du_parcours + distance(sommet_courant, sommet i)),tab_arrêtes_min)
+                si (length < dist_min) 
+                    dist_min = length
+                    récupération = liste
+            renvoie(récupération, dist_min)
+
+  #à lancer avec cet appel dans la fonction
+  (liste_de_fin, longeur) = algo rec (sommet_de_depart, bornsup, 1, longeur
+  si (liste_de_fin = [])
+      renvoie (parcours_bête, bornsup)
+  sinon
+      renvoie (liste_de_fin,longeur)
+  
+  potentielle amélioration : si possibilité de faire un passage par adresse, mise à jour de la borne supérieur en cours d'exécution de l'algo,
+
+  *peut mal se comporter sur les maisons avec des distances entres elles faibles, peut être beaucoup d'appels inutiles
+
+
+
+Notes de réflexion / pistes à explorer :
+(passage à des graphes non connexes : trouver le plus court chemin entre chaque maison ? (!) problème : ne tiens pas en compte des chemins qui se superposent (si une ville est sur le chemin de deux autres) = non optimal
+(faire du clustering pour quand il y aura plusieurs livreurs ?)
+(quand faire partir les livreurs - juste après avoir reçu la commande ? - pour d'autres échelles plus tard)
