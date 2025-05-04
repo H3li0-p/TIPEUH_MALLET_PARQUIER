@@ -2,9 +2,11 @@ from tkinter import *
 from tkinter import ttk
 
 
-root = Tk()
-frm = ttk.Frame(root,padding = 10)
-frm.grid()
-ttk.Label(frm,text="Hello World !").grid(column = 0,row = 0)
-ttk.Button(frm,text="Quit",command=root.destroy).grid(column=1,row = 0)
-root.mainloop()
+fenetre = Tk()
+
+pizza = PhotoImage(file="pizza_time.png")
+canvas = Canvas(fenetre,width = 1920,height = 1080)
+canvas.create_image(0,0,anchor = NW,image = pizza)
+canvas.pack()
+
+fenetre.mainloop()
