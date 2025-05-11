@@ -1,4 +1,6 @@
-"""Graphes non-orienté """
+#Graphes non-orienté
+import random as rd
+
 class UD_Graph : #UD pour undirected
     
     def __init__(self,nv): #int pour nv = le nb de sommets    
@@ -7,7 +9,7 @@ class UD_Graph : #UD pour undirected
         #self.mat = [[-1 for _ in range(nv)] for _ in range(nv)]
         self.nb_vertices = nv
         self.mat_lin = [-1 for _ in range(int((nv*(nv-1))/2))] #version linéarisée de la matrice d'adjacence
-        self.voisins = [[] for _ in range(nv)] #couple (indice du sommet (entier),valeur (float))
+        self.voisins = [[] for _ in range(nv)] #couple (indice du sommet (entier),valeur (float)) 
 
     """                               [ [-1, 3, 4, 7,-1, 1], exemple de matrice complète, la linéarisation donnerait: 
                                     [ 3,-1, 5, 3, 6,-1],    [3,4,7,-1,1,5,3,6,-1,2,4,1,-1,7,3] (on garde le triangle supérieur qu'on "lit" ligne par ligne)
@@ -16,9 +18,11 @@ class UD_Graph : #UD pour undirected
                                     [-1, 6, 4,-1,-1, 3],
                                     [ 1,-1, 1, 7, 3,-1]] 
                                                 ^
-                                                j               
+                                                j   
+    self.voisins de la forme [numéro sommet, distance]
     """
     def offset_mat_lin(self,u,v):
+        """calcule l'offset entre les sommets i et j pour la matrice linéarisé"""
         nv = self.nb_vertices
         #assert (u < self.nb_vertices and v < self.nb_vertices), "InvalidVertices"
         
@@ -53,7 +57,7 @@ class UD_Graph : #UD pour undirected
             current = self.voisins[u][mid][1]
            # print(current)
             if (current == weight):
-                self.voisins[u].insert(mid,(v,weight))
+                self.voisins[u].insert(mid,[v,weight])
                 return True
             elif (current < weight):
                 borninf = mid + 1 
@@ -134,11 +138,15 @@ class UD_Graph : #UD pour undirected
             self.nb_edges -= 1
 
 
-    def get_voisins(self):
+    def get_voisins_mat(self):
         return self.voisins
-
-    def get_lin_adj(self):
-        return self.mat_lin
+        
+    def get_voisins(self,u):
+        return self.voisins[u]
+    
+    def get_edge(self,u,v):
+        """renvoie la valeur de l'arête entre u et v"""
+        return self.mat_lin[self.offset_mat_lin(u,v)]
         
     def __str__(self):
         print("nb vertices :",self.nb_vertices)
@@ -148,7 +156,7 @@ class UD_Graph : #UD pour undirected
         for i in range(self.nb_vertices):
             print("sommet :",i,self.voisins[i])
         
-        print("matrice d'adjacence ( du sommet 0 au sommet",(self.nb_vertices),") - /!\ la diagonale n'est pas affiché ! (pas de boucles possibles = on commence au lien entre le sommet 0 et 1\n")
+        print("matrice d'adjacence ( du sommet 0 au sommet",(self.nb_vertices),") - (!) la diagonale n'est pas affiché ! (pas de boucles possibles = on commence au lien entre le sommet 0 et 1\n")
         for j in range(self.nb_vertices-1):
             print("   ,"*j,"  ",self.mat_lin[self.offset_mat_lin(j,j+1):self.offset_mat_lin(j+1,j+2)])
             """ a = self.mat_lin[(self.offset_mat_lin(j-1,0)):(self.offset_mat_lin(j,0))]
@@ -176,3 +184,72 @@ def test1():
 
 #test1()
 
+def random_perfect_graph(n,max):
+    """créer un graphe aléatoire complet à n sommets dont les poids des arrêtes sont compris entre 1 et max"""
+    assert(max >= 1)
+    assert(n>=2)
+    
+    out = UD_Graph(n)
+    for i in range(n):
+        for j in range(i+1,n):
+            out.add_edge(i,j,rd.uniform(0.1,max))
+    return out
+
+objet2 = random_perfect_graph(10,30)
+#print(objet2)
+
+def random_order(graph):
+    """à partir d'un objet de classe UD_graph, génère une liste aléatoire de 0 et de 1 de longueur égale au nombre de sommets(1 = demandant une commande / 0 = ne demande pas de commande) (!) la case 0 est toujours à 1 car considéré comme le restaurant donc doit toujours être inclu dans le cycle"""
+    nv = graph.nb_vertices
+    nb_commandes = 0 #exclu le restaurant
+    out = [1] #restaurant considéré comme 0 => toujours à 1 (pour être pris en compte dans la boucle)
+    for _ in range(1,nv):
+        order = rd.randint(0,1)
+        nb_commandes += order
+        out.append(order)
+    return (out,nb_commandes)
+
+#print(random_order(objet2))
+"""on choisi arbitrairement le graphe 0 comme le graphe du restaurant"""
+
+def aux_n_v(graph,ind,command_list,out,nb_commandes):
+    """construit la liste du parcours glouton naiv_parcours, sauf le dernier maillon entre le dernier indice et 0 (fait dans la fonction glouton_parcours - définition des variables dans la doc de la fonction glouton_parcours)"""
+    print(out)
+    command_list[ind] = 0
+    if (len(out) == nb_commandes):
+        return out
+    else:
+        for elt in graph.get_voisins(ind):
+            if (command_list[elt[0]] == 1):
+                return aux_n_v(graph,(elt[0]),command_list,(out.append([ind,elt[0]])),nb_commandes)
+
+def glouton_parcours(graph,command_tuple):
+    """algo glouton génèrant à partir du couple (command_list,nb_commandes) (command_list = liste des commandes construite avec la fonction random_order + nb_commandes = le nombres de commandes soit le nombre de 1 dans la liste en excluant le resto (nb de 1 moins un) construit avec la fonction random_order) le parcours du plus proche voisin (0 = départ) dans l'objet UD_Graph graph.
+    /!\ pour l'instant ne marche que pour les graphes complets (nécessaire pour la récurence et la dernière ligne de code)
+    /!\ ne donne que les sommets à suivre et non la distance, va être nécessaire"""
+    print(len(command_tuple[0]))
+    assert(graph.nb_vertices == len(command_tuple[0]))
+    
+    out = aux_n_v(graph,0,command_tuple[0],[],command_tuple[1])
+    out.append([(out[-1:][1]),0]) #on prend le tout dernier sommet ajouté, et on le lie à 0 -> possible car graphe complet !
+    
+    """out = [] #initialiser avec la prelière valeur non nulle
+    last_ind = 0
+    for i in range(graph.nb_vertices):
+        if command_list[i] == 1:
+            last_ind = i
+            command_list[i] = 0
+            for elt in (graph.get_voisins())[i]:
+                if command_list[elt[0]] == 1: #si le somm
+                    command_list[elt[0]] == 0
+                    out.append(elt)
+                    print(i)
+                    break
+    # /!\ à cause de cetgte dernière ligne, ne marche que pour les graphes complets (on n'est pas surs de l'existence entre la denière arrête et le sommet de départ)
+    out.append([0,graph.get_edge(last_ind,0)])"""
+    return out
+
+objet3 = random_perfect_graph(20,30)
+test3 = random_order(objet3)
+print("originlist",test3)
+print(glouton_parcours(objet3,test3))
