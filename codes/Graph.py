@@ -184,15 +184,15 @@ def test1():
 
 #test1()
 
-def random_perfect_graph(n,max):
+def random_perfect_graph(n,maxi):
     """créer un graphe aléatoire complet à n sommets dont les poids des arrêtes sont compris entre 1 et max"""
-    assert(max >= 1)
+    assert(maxi >= 1)
     assert(n>=2)
     
     out = UD_Graph(n)
     for i in range(n):
         for j in range(i+1,n):
-            out.add_edge(i,j,rd.uniform(0.1,max))
+            out.add_edge(i,j,rd.uniform(0.1,maxi))
     return out
 
 objet2 = random_perfect_graph(10,30)
@@ -225,7 +225,7 @@ def aux_n_v(graph,ind,command_list,out,nb_commandes):
 
 def glouton_parcours(graph,command_tuple):
     """algo glouton génèrant à partir du couple (command_list,nb_commandes) (command_list = liste des commandes construite avec la fonction random_order + nb_commandes = le nombres de commandes soit le nombre de 1 dans la liste en excluant le resto (nb de 1 moins un) construit avec la fonction random_order) le parcours du plus proche voisin (0 = départ) dans l'objet UD_Graph graph.
-    /!\ pour l'instant ne marche que pour les graphes complets (nécessaire pour la récurence et la dernière ligne de code)
+    /!\ pour l'instant ne marche que pour les graphes complets (nécessaire pour la récurrence et la dernière ligne de code)
     /!\ ne donne que les sommets à suivre et non la distance, va être nécessaire"""
     print(len(command_tuple[0]))
     assert(graph.nb_vertices == len(command_tuple[0]))
@@ -233,7 +233,7 @@ def glouton_parcours(graph,command_tuple):
     out = aux_n_v(graph,0,command_tuple[0],[],command_tuple[1])
     out.append([(out[-1:][1]),0]) #on prend le tout dernier sommet ajouté, et on le lie à 0 -> possible car graphe complet !
     
-    """out = [] #initialiser avec la prelière valeur non nulle
+    """out = [] #initialiser avec la première valeur non nulle
     last_ind = 0
     for i in range(graph.nb_vertices):
         if command_list[i] == 1:
@@ -245,7 +245,7 @@ def glouton_parcours(graph,command_tuple):
                     out.append(elt)
                     print(i)
                     break
-    # /!\ à cause de cetgte dernière ligne, ne marche que pour les graphes complets (on n'est pas surs de l'existence entre la denière arrête et le sommet de départ)
+    # /!\ à cause de cette dernière ligne, ne marche que pour les graphes complets (on n'est pas sûr de l'existence entre la denière arrête et le sommet de départ)
     out.append([0,graph.get_edge(last_ind,0)])"""
     return out
 
