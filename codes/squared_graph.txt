@@ -1,0 +1,17 @@
+Visualisation du problème avec un graphe carré.
+Instance 1:
+
+1 livreur, 1 client.
+-> assimilation du graphe carré à un espace de coordonnées cartésiennes entière (longueur d'une arrête ramené à 1).
+d(R,C) = |Xc - Xr| + |Yc - Yr|
+
+
+Instance 2:
+
+1 livreur, 3 clients :
+6 possibilités à tester (bruteforce) -> acceptable
+
+Instance 3:
+
+n livreurs, p commandes :
+groupements de 3 clients "proches" --> algorithme de clustering + Instance 2
