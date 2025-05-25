@@ -1,4 +1,11 @@
 Visualisation du problème avec un graphe carré.
+Implémentation du graphe carré : matrice i,j d'entiers : les sommets du graphe repérées également par leurs coordonnées
+telles que mat[x][y] correspond au point de coordonnées (x,y).
+
+
+
+
+
 Instance 1:
 
 1 livreur, 1 client.
@@ -10,6 +17,10 @@ Instance 2:
 
 1 livreur, 3 clients :
 6 possibilités à tester (bruteforce) -> acceptable
+Algo :
+
+Entrée : |liste d'entiers : les sommets du graphe que l'on souhaite visiter
+
 
 Instance 3:
 
