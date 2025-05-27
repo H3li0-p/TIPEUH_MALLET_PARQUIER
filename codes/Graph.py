@@ -188,15 +188,15 @@ def test1():
 
 #test1()
 
-def random_perfect_graph(n,maxi):
+def random_perfect_graph(n,max):
     """créer un graphe aléatoire complet à n sommets dont les poids des arrêtes sont compris entre 1 et max"""
-    assert(maxi >= 1)
+    assert(max >= 1)
     assert(n>=2)
     
     out = UD_Graph(n)
     for i in range(n):
         for j in range(i+1,n):
-            out.add_edge(i,j,rd.uniform(0.1,maxi))
+            out.add_edge(i,j,rd.uniform(0.1,max))
     return out
 
 objet2 = random_perfect_graph(10,30)
@@ -229,16 +229,10 @@ def aux_n_v(graph,ind,command_list,out,nb_commandes,dist):
 
 def glouton_parcours(graph,cpy):
     """algo glouton génèrant à partir du couple (command_list,nb_commandes) (command_list = liste des commandes construite avec la fonction random_order + nb_commandes = le nombres de commandes soit le nombre de 1 dans la liste en excluant le resto (nb de 1 moins un) construit avec la fonction random_order) le parcours du plus proche voisin (0 = départ) dans l'objet UD_Graph graph.
-<<<<<<< HEAD
     (!) pour l'instant ne marche que pour les graphes complets (nécessaire pour la récurence et la dernière ligne de code)
     (!) ne donne que les sommets à suivre et non la distance, va être nécessaire"""
     command_tuple = cp.deepcopy(cpy) #pour ne pas dégrader la donnée en entrée
     #print(len(command_tuple[0]))
-=======
-    /!\ pour l'instant ne marche que pour les graphes complets (nécessaire pour la récurrence et la dernière ligne de code)
-    /!\ ne donne que les sommets à suivre et non la distance, va être nécessaire"""
-    print(len(command_tuple[0]))
->>>>>>> 7d7472aa9a94a470fe6595bf9db3e736eb372c24
     assert(graph.nb_vertices == len(command_tuple[0]))
     
     out,length = aux_n_v(graph,0,command_tuple[0],[],command_tuple[1],0)
@@ -278,29 +272,12 @@ def dico_insert(liste, weight, borninf, bornsup):
     #print("a",mid,weight)#à optim en c
     return liste
     
-<<<<<<< HEAD
 def creation_arretes_min(graph):
     out = []
     toorder = graph.get_mat_lin()
     nv = graph.nb_vertices
     for i in range(int((nv*(nv - 1)/2))):
         out = dico_insert(out,toorder[i],0,(i-1))
-=======
-    """out = [] #initialiser avec la première valeur non nulle
-    last_ind = 0
-    for i in range(graph.nb_vertices):
-        if command_list[i] == 1:
-            last_ind = i
-            command_list[i] = 0
-            for elt in (graph.get_voisins())[i]:
-                if command_list[elt[0]] == 1: #si le somm
-                    command_list[elt[0]] == 0
-                    out.append(elt)
-                    print(i)
-                    break
-    # /!\ à cause de cette dernière ligne, ne marche que pour les graphes complets (on n'est pas sûr de l'existence entre la denière arrête et le sommet de départ)
-    out.append([0,graph.get_edge(last_ind,0)])"""
->>>>>>> 7d7472aa9a94a470fe6595bf9db3e736eb372c24
     return out
     
 def rec_tree_cutting(sommet_courant, bornsup,nb_de_sommets_passes,nb_total_sommets, graph, sommet_de_depart,tab_visited,parcours_actuel, longueur_du_parcours,tab_arretes_min): #nb_total_sommets excluant le fait de revenir au premier
@@ -366,10 +343,3 @@ def test():
 
 test()
 
-<<<<<<< HEAD
-=======
-objet3 = random_perfect_graph(20,30)
-test3 = random_order(objet3)
-print("originlist",test3)
-print(glouton_parcours(objet3,test3))
->>>>>>> 7d7472aa9a94a470fe6595bf9db3e736eb372c24
