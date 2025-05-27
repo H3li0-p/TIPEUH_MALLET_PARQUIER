@@ -1,5 +1,6 @@
 #Graphes non-orienté
 import random as rd
+import copy as cp
 
 class UD_Graph : #UD pour undirected
     
@@ -40,7 +41,7 @@ class UD_Graph : #UD pour undirected
         self.mat_lin[self.offset_mat_lin(u,v)] = w 
 
 
-    def voisins_dico_insert(self, u, v, weight, borninf, bornsup): #à tester
+    def voisins_dico_insert(self, u, v, weight, borninf, bornsup):
         """effectue une insertion dicotomique de v dans les voisins de u entre borninf et bornsup inclus à partir du poids. #(enlevé : Renvoie true si l'ajout a bien eu lieu, false sinon)
         -> b = true <=> ajout/modif de l'arrête ente u et v
         -> b = false <=> supression de l'arrête entre u et v"""
@@ -140,6 +141,9 @@ class UD_Graph : #UD pour undirected
 
     def get_voisins_mat(self):
         return self.voisins
+    
+    def get_mat_lin(self):
+        return self.mat_lin
         
     def get_voisins(self,u):
         return self.voisins[u]
@@ -184,15 +188,15 @@ def test1():
 
 #test1()
 
-def random_perfect_graph(n,maxi):
+def random_perfect_graph(n,max):
     """créer un graphe aléatoire complet à n sommets dont les poids des arrêtes sont compris entre 1 et max"""
-    assert(maxi >= 1)
+    assert(max >= 1)
     assert(n>=2)
     
     out = UD_Graph(n)
     for i in range(n):
         for j in range(i+1,n):
-            out.add_edge(i,j,rd.uniform(0.1,maxi))
+            out.add_edge(i,j,rd.uniform(0.1,max))
     return out
 
 objet2 = random_perfect_graph(10,30)
@@ -212,44 +216,129 @@ def random_order(graph):
 #print(random_order(objet2))
 """on choisi arbitrairement le graphe 0 comme le graphe du restaurant"""
 
-def aux_n_v(graph,ind,command_list,out,nb_commandes):
+def aux_n_v(graph,ind,command_list,out,nb_commandes,dist):
     """construit la liste du parcours glouton naiv_parcours, sauf le dernier maillon entre le dernier indice et 0 (fait dans la fonction glouton_parcours - définition des variables dans la doc de la fonction glouton_parcours)"""
-    print(out)
     command_list[ind] = 0
     if (len(out) == nb_commandes):
-        return out
+        return (out,dist)
     else:
         for elt in graph.get_voisins(ind):
             if (command_list[elt[0]] == 1):
-                return aux_n_v(graph,(elt[0]),command_list,(out.append([ind,elt[0]])),nb_commandes)
+                out.append([ind,elt[0]])
+                return aux_n_v(graph,(elt[0]),command_list,out,nb_commandes,(dist + elt[1]))
 
-def glouton_parcours(graph,command_tuple):
+def glouton_parcours(graph,cpy):
     """algo glouton génèrant à partir du couple (command_list,nb_commandes) (command_list = liste des commandes construite avec la fonction random_order + nb_commandes = le nombres de commandes soit le nombre de 1 dans la liste en excluant le resto (nb de 1 moins un) construit avec la fonction random_order) le parcours du plus proche voisin (0 = départ) dans l'objet UD_Graph graph.
-    /!\ pour l'instant ne marche que pour les graphes complets (nécessaire pour la récurrence et la dernière ligne de code)
-    /!\ ne donne que les sommets à suivre et non la distance, va être nécessaire"""
-    print(len(command_tuple[0]))
+    (!) pour l'instant ne marche que pour les graphes complets (nécessaire pour la récurence et la dernière ligne de code)
+    (!) ne donne que les sommets à suivre et non la distance, va être nécessaire"""
+    command_tuple = cp.deepcopy(cpy) #pour ne pas dégrader la donnée en entrée
+    #print(len(command_tuple[0]))
     assert(graph.nb_vertices == len(command_tuple[0]))
     
-    out = aux_n_v(graph,0,command_tuple[0],[],command_tuple[1])
-    out.append([(out[-1:][1]),0]) #on prend le tout dernier sommet ajouté, et on le lie à 0 -> possible car graphe complet !
-    
-    """out = [] #initialiser avec la première valeur non nulle
-    last_ind = 0
-    for i in range(graph.nb_vertices):
-        if command_list[i] == 1:
-            last_ind = i
-            command_list[i] = 0
-            for elt in (graph.get_voisins())[i]:
-                if command_list[elt[0]] == 1: #si le somm
-                    command_list[elt[0]] == 0
-                    out.append(elt)
-                    print(i)
-                    break
-    # /!\ à cause de cette dernière ligne, ne marche que pour les graphes complets (on n'est pas sûr de l'existence entre la denière arrête et le sommet de départ)
-    out.append([0,graph.get_edge(last_ind,0)])"""
-    return out
+    out,length = aux_n_v(graph,0,command_tuple[0],[],command_tuple[1],0)
+    a = out[-1:][0][1]
+    out.append([a,0]) #on prend le tout dernier sommet ajouté, et on le lie à 0 -> possible car graphe complet !
+    return out,length
 
-objet3 = random_perfect_graph(20,30)
-test3 = random_order(objet3)
-print("originlist",test3)
-print(glouton_parcours(objet3,test3))
+def command_check(liste):
+    """prend une liste de commandes (construite avec random_order) et affiche les sommets ayant commandé"""
+    print("liste des commandes :")
+    for i in range(0,len(liste[0])):
+        if liste[0][i] == 1:
+            print(i," ")
+
+
+def dico_insert(liste, weight, borninf, bornsup):
+    """insertion dichotomique simple pour construire la liste des plus courtes arrêtes"""
+    assert (borninf >= 0), "borne inf invalide !"
+    assert (bornsup < len(liste)), "borne sup invalide !"
+    mid = 0
+    # print(borninf,bornsup)
+    while(borninf <= bornsup):
+        mid = int((borninf + bornsup) / 2)
+    # print(mid)
+        current = liste[mid]
+    # print(current)
+        if (current == weight):
+            liste.insert(mid,weight)
+            return liste
+        elif (current < weight):
+            borninf = mid + 1 
+        else:
+            bornsup = mid - 1
+
+    mid = int((borninf + bornsup + 1) / 2)
+    liste.insert(mid,weight) 
+    #print("a",mid,weight)#à optim en c
+    return liste
+    
+def creation_arretes_min(graph):
+    out = []
+    toorder = graph.get_mat_lin()
+    nv = graph.nb_vertices
+    for i in range(int((nv*(nv - 1)/2))):
+        out = dico_insert(out,toorder[i],0,(i-1))
+    return out
+    
+def rec_tree_cutting(sommet_courant, bornsup,nb_de_sommets_passes,nb_total_sommets, graph, sommet_de_depart,tab_visited,parcours_actuel, longueur_du_parcours,tab_arretes_min): #nb_total_sommets excluant le fait de revenir au premier
+    """effectue la partie récursive de l'algo décrit dans le fichier Echelle 1 du git"""
+    print(nb_de_sommets_passes)
+    tab_visited[sommet_courant] = 0 #est ce que c'est une va locale ? - pas important en fait
+    if (nb_de_sommets_passes == nb_total_sommets): #cas de base - descente terminée
+        return (parcours_actuel,(longueur_du_parcours))
+    for i in range(nb_total_sommets - nb_de_sommets_passes): #condition de boucle à vérifier
+        nb_min = longueur_du_parcours + tab_arretes_min[i]
+        
+    if (nb_min > bornsup): #chemin à ne pas explorer = autre cas d'arrêt
+        print("nb_min",nb_min)
+        return([],bornsup + 1)
+    
+    recuperation = [] #liste qui récupère tout les chemins valides
+    dist_min = bornsup
+    for i in range(len(tab_visited)):
+        if tab_visited[i] == 1:
+            parcours_actuel.append([sommet_courant,i])
+            #tab_arretes_min.remove(graph.get_edge(sommet_courant,i))
+            (liste,length) = rec_tree_cutting(i, dist_min, (nb_de_sommets_passes + 1),nb_total_sommets,graph,sommet_de_depart,tab_visited,parcours_actuel,(longueur_du_parcours + graph.get_edge(sommet_courant,i)),tab_arretes_min)
+            parcours_actuel.pop() #check comment tab_arretes_min se transmet (si c'est une variable locale ou si elle est copié)
+            print("length",length)
+            if (length < dist_min):
+                recuperation = liste
+                dist_min = length
+    return(recuperation, dist_min)
+    
+
+def tree_cuting(graph,cpy,start):
+    """implemente l'algo 1 du fichier echelle 1. Partant du tuple de commande construit à partir de random order, donne le parcours optimal ainsi que sa distance"""
+    #preparation pour l'algo récursif
+    command_tuple = cp.deepcopy(cpy)
+    
+    (parcours_bete, bornsup) = glouton_parcours(graph,command_tuple)
+    tab_arretes_min = creation_arretes_min(graph)
+    #print("\ntab arretes min",tab_arretes_min,"\n")
+    tab_visited = command_tuple[0]
+
+    #recusivité 
+    (liste_fin,longueur) = rec_tree_cutting(start,bornsup,1,command_tuple[1],graph, start, tab_visited, [], 0, tab_arretes_min) #attention command_tuple - n'est pas sûr que ça soit le bon nb
+    print(liste_fin)
+    
+    if (liste_fin == []):
+        return(parcours_bete, bornsup)
+        
+    #petit raccordement à faire en fin de fonction
+    return (liste_fin,longueur)
+
+
+def test():
+    objet3 = random_perfect_graph(10,50)
+    test3 = random_order(objet3)
+    print("originlist",test3)
+    #command_check(test3)
+    print(glouton_parcours(objet3,test3))
+    #print(creation_arretes_min(objet3))
+    #print(test3)
+    
+    out = tree_cuting(objet3,test3,0)
+    print(out)
+
+test()
