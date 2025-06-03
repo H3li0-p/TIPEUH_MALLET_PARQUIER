@@ -87,6 +87,20 @@ def verify(g,res):
     for i in permutations(res[0],res[1],res[2]):
         print(i,dist_chemin(g,i))
 
+
+def commandes_tab(g,n):
+    p = (g.get_side_l()**2)-1
+    u = rd.randint(0,p)
+    commandes = []
+    for i in range(n):
+        while u in commandes or u == g.get_resto():
+            u = rd.randint(0,p)
+        commandes.append(u)
+    return commandes
+
+
+
+
 g = graph_carre(10)
 g.set_restaurant(3,6)
 res1 = test(g)
