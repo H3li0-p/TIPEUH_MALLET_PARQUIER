@@ -100,10 +100,3 @@ def commandes_tab(g,n):
 
 
 
-
-g = graph_carre(10)
-g.set_restaurant(3,6)
-res1 = test(g)
-verify(g,res1)
-
-
