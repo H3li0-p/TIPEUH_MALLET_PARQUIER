@@ -99,5 +99,24 @@ def commandes_tab(g,n):
         commandes.append(u)
     return commandes
 
+def time_to_deliver(g,attrib,longueur,vitesse):
+    """On suppose que la vitesse des livreurs est constante et identique pour chaque livreur (ce sont des pros)"""
+    """Renvoie pour chaque sommet à visiter du graphe (client à visiter) le temps de livraison de ce client ainsi que le temps moyen de livraison"""
+    temps_par_maison = {}
+    resto = g.get_resto()
+    time = 0
+    for livreur in attrib.keys():
+        current = resto
+        itineraire = attrib[livreur]
+        for groupes in itineraire:
+            for client in groupes:
+                tps = dist(g,current,client)*longueur/vitesse
+                
+                if client != resto:
+                    temps_par_maison[client] = tps
 
+                time += tps
+                current = client
+            
+    return temps_par_maison,time/len(temps_par_maison)
 
