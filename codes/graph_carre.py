@@ -80,12 +80,12 @@ def test(g):
             u = rd.randint(0,n)
             
         commandes.append(u)
-    chemin = trajet(g,commandes[0],commandes[1],commandes[2])
+    chemin = trajet(g,commandes)
     return chemin
 
 def verify(g,res):
     print(res)
-    for i in permutations(res[0],res[1],res[2]):
+    for i in permutations(res):
         print(i,dist_chemin(g,i))
 
 
