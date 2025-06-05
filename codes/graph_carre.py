@@ -49,23 +49,24 @@ def dist_chemin(g,path):
         i+=1
     return d
 
-def permutations(u,v,w):
+def permutations(maisons):
     """calcule les 3! = 6 trajets possible pour relier 3 maisons : le coût est en 0(n!) mais cette fonction sera toujours appliquée pour 3 éléments seulement"""
-    p = [[u,v,w]]
-    for k in range(0,2):
+    n = len(maisons)
+    p = [maisons]
+    for k in range(0,n-1):
         for i in range(0, len(p)):
             z = p[i][:]
-            for c in range(0,3-k-1):
+            for c in range(0,n-k-1):
                 z.append(z.pop(k))
                 if (z not in p):
                     p.append(z[:])
     return p
 
 
-def trajet(g,u,v,w):
+def trajet(g,maisons):
     """ "bruteforce" le meilleur trajet pour livrer 3 clients"""
     out = []
-    paths = permutations(u,v,w)
+    paths = permutations(maisons)
     d = [dist_chemin(g,s) for s in paths]
     out = paths[d.index(min(d))]
     return out
