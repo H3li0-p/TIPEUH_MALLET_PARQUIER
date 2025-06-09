@@ -49,23 +49,24 @@ def dist_chemin(g,path):
         i+=1
     return d
 
-def permutations(u,v,w):
+def permutations(maisons):
     """calcule les 3! = 6 trajets possible pour relier 3 maisons : le coût est en 0(n!) mais cette fonction sera toujours appliquée pour 3 éléments seulement"""
-    p = [[u,v,w]]
-    for k in range(0,2):
+    n = len(maisons)
+    p = [maisons]
+    for k in range(0,n-1):
         for i in range(0, len(p)):
             z = p[i][:]
-            for c in range(0,3-k-1):
+            for c in range(0,n-k-1):
                 z.append(z.pop(k))
                 if (z not in p):
                     p.append(z[:])
     return p
 
 
-def trajet(g,u,v,w):
+def trajet(g,maisons):
     """ "bruteforce" le meilleur trajet pour livrer 3 clients"""
     out = []
-    paths = permutations(u,v,w)
+    paths = permutations(maisons)
     d = [dist_chemin(g,s) for s in paths]
     out = paths[d.index(min(d))]
     return out
@@ -79,12 +80,12 @@ def test(g):
             u = rd.randint(0,n)
             
         commandes.append(u)
-    chemin = trajet(g,commandes[0],commandes[1],commandes[2])
+    chemin = trajet(g,commandes)
     return chemin
 
 def verify(g,res):
     print(res)
-    for i in permutations(res[0],res[1],res[2]):
+    for i in permutations(res):
         print(i,dist_chemin(g,i))
 
 
@@ -98,5 +99,24 @@ def commandes_tab(g,n):
         commandes.append(u)
     return commandes
 
+def time_to_deliver(g,attrib,longueur,vitesse):
+    """On suppose que la vitesse des livreurs est constante et identique pour chaque livreur (ce sont des pros)"""
+    """Renvoie pour chaque sommet à visiter du graphe (client à visiter) le temps de livraison de ce client ainsi que le temps moyen de livraison"""
+    temps_par_maison = {}
+    resto = g.get_resto()
+    time = 0
+    for livreur in attrib.keys():
+        current = resto
+        itineraire = attrib[livreur]
+        for groupes in itineraire:
+            for client in groupes:
+                tps = dist(g,current,client)*longueur/vitesse
+                
+                if client != resto:
+                    temps_par_maison[client] = tps
 
+                time += tps
+                current = client
+            
+    return temps_par_maison,time/len(temps_par_maison)
 
