@@ -1,4 +1,5 @@
 import clustering as cl
+import graph_carre as gc
 
 def DBSCA(graph,commandes,nb_max_elt,grain_depart,grain_div):
     """fait les groupes de livraison pour les commandes avec des groupes d'au plus nb_max_elt à partir de la liste de commandes, de graph, et d'un grain de départ"""
@@ -18,7 +19,7 @@ def DBSCA(graph,commandes,nb_max_elt,grain_depart,grain_div):
 #dbsca classique
 def DBSCA_classique(graph,commandes,nb_max_elt,grain):
     out = []
-    voisins = creer_tab_voisins(graph,commandes)
+    voisins = cl.creer_tab_voisins(graph,commandes)
     visited = [0 for _ in range((graph.get_side_l())**2)]
     to_recheck = [] #indice des clusters surs lequels relancer le dbsca
     for elt in voisins.keys():
@@ -46,8 +47,8 @@ def dbscarec(sommet,voisins,visited,grain):
     acc_out.append(sommet)
     return acc_out
 
-g = gc.graph_carre(10)
+g = gc.graph_carre(20)
 g.set_restaurant(3,6)
 
-cmds = gc.commandes_tab(g,17)
+cmds = gc.commandes_tab(g,30)
 print(DBSCA(g,cmds,5,6,2))
