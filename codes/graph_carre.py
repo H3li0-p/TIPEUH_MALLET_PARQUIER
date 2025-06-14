@@ -106,11 +106,13 @@ def time_to_deliver(g,attrib,longueur,vitesse):
     resto = g.get_resto()
     time = 0
     for livreur in attrib.keys():
-        current = resto
         itineraire = attrib[livreur]
+        print(livreur,":",itineraire)
+        tps = 0
         for groupes in itineraire:
+            current = resto
             for client in groupes:
-                tps = dist(g,current,client)*longueur/vitesse
+                tps += dist(g,current,client)*longueur/vitesse
                 
                 if client != resto:
                     temps_par_maison[client] = tps
