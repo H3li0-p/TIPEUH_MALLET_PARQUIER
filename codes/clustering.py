@@ -177,3 +177,19 @@ def test3(nb_livreurs,charge_max):
 #test_serpent(10,3)
 
 test3(3,4)
+
+def test4(nb_livreurs,capacity,size_city,resto,nb_commandes):
+    print("///TEST TEMPS MOYEN///\n")
+    g = gc.graph_carre(size_city)
+    g.set_restaurant(resto[0],resto[1])
+
+    cmds = gc.commandes_tab(g,nb_commandes)
+    print(cmds,"\n")
+    dico = parcours_resto(g,cmds,nb_livreurs,capacity)
+    tmps_pr_maison,time_avg = gc.time_to_deliver(g,dico,100,1)
+    for client in tmps_pr_maison.keys():
+        print(client," : ",tmps_pr_maison[client],"\n")
+    print(time_avg)
+
+
+test4(3,3,10,(3,6),16)
