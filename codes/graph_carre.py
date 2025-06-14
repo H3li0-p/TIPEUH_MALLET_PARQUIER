@@ -107,7 +107,7 @@ def time_to_deliver(g,attrib,longueur,vitesse):
     time = 0
     for livreur in attrib.keys():
         itineraire = attrib[livreur]
-        print(livreur,":",itineraire)
+        #print(livreur,":",itineraire)
         tps = 0
         for groupes in itineraire:
             current = resto
