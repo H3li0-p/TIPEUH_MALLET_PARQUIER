@@ -228,9 +228,10 @@ def test_battery(n,nb_livreurs,charge_max,taille_ville,coos_resto,nb_commandes):
     """Lance n test à paramètres fixés et renvoie le temps moyen de livraison sur n simulation"""
     temps = []
     for _ in range(n):
-        temps.append( test4bis(nb_livreurs,charge_max,taille_ville,coos_resto,nb_comandes))
+        temps.append( test4bis(nb_livreurs,charge_max,taille_ville,coos_resto,nb_commandes))
     temps_np = np.array(temps)
     avg = np.mean(temps_np)
     incertitude = np.std(temps_np)/np.sqrt(n)
     return avg,incertitude
 
+print(test_battery(1000,3,3,10,(3,6),16))
