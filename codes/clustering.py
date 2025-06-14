@@ -4,11 +4,17 @@ def creer_tab_voisins(g,commandes):
     """Crée un dictionnaire à partir des sommets à visiter, les clés sont les sommets de la liste de commandes,
     et les valeurs associée sont une liste des autres sommets à visiter, par ordre croissant de distance au sommet courant"""
     tabvoisins = {}
-    tabvoisins[g.get_resto()] = sorted([(v,gc.dist(g,g.get_resto(),v)) for v in commandes],key = lambda pt: pt[1])
+    resto = g.get_resto()
+    tabvoisins[resto] = [(v,gc.dist(g,resto,v)) for v in commandes]
+
+    #print(tabvoisins)
+    #print("")
+
     for u in commandes:
         tabvoisins[u] = []
         for v in commandes:
             if v != u:
+                #print(v)
                 tabvoisins[u].append((v,gc.dist(g,u,v)))
     for w in commandes:
         tabvoisins[w] = sorted(tabvoisins[w],key = lambda pt: pt[1])
@@ -24,6 +30,8 @@ def DBSCA(graph,commandes,nb_max_elt,grain_depart,grain_div):
         return liste_clust
     else:
         for elt in to_check:
+            #print("elt ",elt)
+            #print("")
             liste_finale = DBSCA(graph,elt,nb_max_elt,(grain_depart/grain_div),grain_div)
             liste_clust.extend(liste_finale)
         return liste_clust
@@ -35,6 +43,8 @@ def DBSCA_classique(graph,commandes,nb_max_elt,grain):
     out = []
     voisins = creer_tab_voisins(graph,commandes)
     visited = [0 for _ in range((graph.get_side_l())**2)]
+    resto = graph.get_resto()
+    visited[resto] = 1
     to_recheck = [] #indice des clusters surs lequels relancer le dbsca
     for elt in voisins.keys():
         #print(elt)
@@ -50,7 +60,8 @@ def DBSCA_classique(graph,commandes,nb_max_elt,grain):
 #dbscarec
 def dbscarec(sommet,voisins,visited,grain):
     visited[sommet] = 1 #surveiller la propagation de visited dans les appels rec
-    #print(sommet)
+    #print(voisins[sommet])
+   # print("")
     i = 0
     acc_out =  []
     while (i < len(voisins[sommet])) and (voisins[sommet][i][1] < grain):
@@ -98,7 +109,7 @@ sortie dictionnaire - clé numéro de livreur - liste de trajets à effectuer -[
     #etape1 = faire les clusters -heuristique de démarrage à préciser et à affiner
     n = graph.get_side_l()
     grain_depart = int(n/2)
-    cluster = DBSCA(graph,commandes,charge_max,grain_depart,2)
+    cluster = DBSCA(graph,commandes,charge_max,grain_depart,1.5)
     resto = graph.get_resto()
 
     #etape2 = pour chaque cluster, trouver le chemin à effectuer
@@ -158,7 +169,7 @@ def test_serpent(nb_parcours,nb_livreurs):
         for liv in range(nb_livreurs):
             if (serpent_count % 2 == 0): #on place à l'envers
                 print(nb_livreurs - 1 - liv)
-            else: #on place à l'endroit'
+            else: #on place à l'endroit
                 print(liv)
             ind += 1
         serpent_count += 1
@@ -168,6 +179,10 @@ def test3(nb_livreurs,charge_max):
     g.set_restaurant(3,6)
 
     cmds = gc.commandes_tab(g,17)
+    res = DBSCA(g,cmds,charge_max,5,1.5)
+    #print("dbsca :",res)
+    print(cmds)
+    print(" ")
     dico = parcours_resto(g,cmds,nb_livreurs,charge_max)
     for ind in range(nb_livreurs):
         print(ind,":",dico[ind],"\n")
