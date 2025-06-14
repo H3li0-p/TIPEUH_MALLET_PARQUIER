@@ -8,14 +8,10 @@ def creer_tab_voisins(g,commandes): #0(n^2ln(n)) avec n = nb commandes
     resto = g.get_resto()
     tabvoisins[resto] = [(v,gc.dist(g,resto,v)) for v in commandes]
 
-    #print(tabvoisins)
-    #print("")
-
     for u in commandes:
         tabvoisins[u] = []
         for v in commandes:
             if v != u:
-                #print(v)
                 tabvoisins[u].append((v,gc.dist(g,u,v)))
     for w in commandes:
         tabvoisins[w] = sorted(tabvoisins[w],key = lambda pt: pt[1])
@@ -31,8 +27,6 @@ def DBSCA(graph,commandes,nb_max_elt,grain_depart,grain_div):
         return liste_clust
     else:
         for elt in to_check:
-            #print("elt ",elt)
-            #print("")
             liste_finale = DBSCA(graph,elt,nb_max_elt,(grain_depart/grain_div),grain_div)
             liste_clust.extend(liste_finale)
         return liste_clust

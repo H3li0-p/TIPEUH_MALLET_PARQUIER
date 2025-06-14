@@ -60,4 +60,6 @@ def tab_graph_construction_nbcmds(size_city,charge_max,nb_livreurs,plage,nb_echa
     outery = np.array(yerrobar)
     return (outx,outy,outery)
 
-print(tab_graph_construction_nbliv(10,10,10,5,10))
+tab_graph_construction_nbliv(10,5,10,100,100)
+
+plt.plot()
