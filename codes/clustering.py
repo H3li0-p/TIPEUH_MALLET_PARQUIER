@@ -1,3 +1,4 @@
+import numpy as np
 import graph_carre as gc
 
 def creer_tab_voisins(g,commandes): #0(n^2ln(n)) avec n = nb commandes
@@ -206,4 +207,27 @@ def test4(nb_livreurs,capacity,size_city,resto,nb_commandes):
         print(client," : ",tmps_pr_maison[client],"\n")
     print(time_avg)
 
+
+def test4bis(nb_livreurs,capacity,size_city,resto,nb_commandes):
+    g = gc.graph_carre(size_city)
+    g.set_restaurant(resto[0],resto[1])
+
+    cmds = gc.commandes_tab(g,nb_commandes)
+
+    dico = parcours_resto(g,cmds,nb_livreurs,capacity)
+    tmps_pr_maison,time_avg = gc.time_to_deliver(g,dico,100,10)
+    return time_avg
+
 test4(3,3,10,(3,6),16)
+
+def test_battery(n,nb_livreurs,charge_max,taille_ville,coos_resto,nb_commandes):
+    """Lance n test à paramètres fixés et renvoie le temps moyen de livraison sur n simulation"""
+    temps = []
+    for _ in range(n):
+        temps.append( test4bis(nb_livreurs,charge_max,taille_ville,coos_resto,nb_commandes))
+    temps_np = np.array(temps)
+    avg = np.mean(temps_np)
+    incertitude = np.std(temps_np)/np.sqrt(n)
+    return avg,incertitude
+
+print(test_battery(1000,3,3,10,(3,6),16))
