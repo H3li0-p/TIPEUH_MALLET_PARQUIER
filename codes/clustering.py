@@ -99,7 +99,7 @@ def glouton_parcours(graph,command_list,start):
     visited = {elt:False for elt in command_list}
     #print(nb_command)
     out = aux_n_v(start,visited,[start],(nb_command + 1),voisins)
-    #print(out)
+    #(out)
     a = out[-1:]
     out.append(start) #on prend le tout dernier sommet ajouté, et on le lie à start
     return out
@@ -192,7 +192,7 @@ def test3(nb_livreurs,charge_max):
 
 #test_serpent(10,3)
 
-test3(3,4)
+#test3(3,4)
 
 def test4(nb_livreurs,capacity,size_city,resto,nb_commandes):
     print("///TEST TEMPS MOYEN///\n")
@@ -218,7 +218,7 @@ def test4bis(nb_livreurs,capacity,size_city,resto,nb_commandes):
     tmps_pr_maison,time_avg = gc.time_to_deliver(g,dico,100,10)
     return time_avg
 
-test4(3,3,10,(3,6),16)
+#test4(3,3,10,(3,6),16)
 
 def test_battery(n,nb_livreurs,charge_max,taille_ville,coos_resto,nb_commandes):
     """Lance n test à paramètres fixés et renvoie le temps moyen de livraison sur n simulation"""
@@ -230,4 +230,4 @@ def test_battery(n,nb_livreurs,charge_max,taille_ville,coos_resto,nb_commandes):
     incertitude = np.std(temps_np)/np.sqrt(n)
     return avg,incertitude
 
-print(test_battery(1000,3,3,10,(3,6),16))
+#print(test_battery(1000,3,3,10,(3,6),16))

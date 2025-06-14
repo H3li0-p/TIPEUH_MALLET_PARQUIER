@@ -8,39 +8,43 @@
 
 #pour des settings fixés (graphe + nb_livreurs + charge_max), faire varier le nombre de commandes pour voir la performance de l'algo sur beaucoup de commandes / peu de commandes plus ou moins éparses
 
-def tab_graph_construction_nbliv(size_city,charge_max,nb_commandes,plage):
+import clustering as cl
+import random as rd
+import numpy as np
+
+def tab_graph_construction_nbliv(size_city,charge_max,nb_commandes,plage,nb_echantillons):
     """construit les deux tableaux nécessaires à la construction du graphe d'étude du nombre nécessaires de livreurs - plage = nb max de livreurs avec lequel on va tester (inclus)"""
     x = []
     y = []
-    yerrobar = []
+    yerr = []
     for i in range(1,(plage+1)):
-        coord = (rd.randint(0,size_city),rd.randint(0,size_city))
+        coord = (rd.randint(0,size_city-1),rd.randint(0,size_city-1))
         x.append(i)
-        out = test_battery(nb_echantillons,i,charge_max,size_city,coord,nb_commandes)
+        out = cl.test_battery(nb_echantillons,i,charge_max,size_city,coord,nb_commandes)
         y.append(out[0])
-        yerrorbar.append(out[1])
+        yerr.append(out[1])
     outx = np.array(x)
     outy = np.array(y)
-    outery = np.array(yerrobar)
+    outery = np.array(yerr)
     return (outx,outy,outery)
 
 def tab_graph_construction_cmax(size_city,nb_commandes,nb_livreurs,plage,nb_echantillons):
     """construit les deux tableaux nécessaires à la construction du graphe d'étude de la variation de la charge max - plage = charge max on va tester (inclus)"""
     x = []
     y = []
-    yerrobar = []
+    yerr = []
     for i in range(1,(plage+1)):
         coord = (rd.randint(0,size_city),rd.randint(0,size_city))
         x.append(i)
-        out = test_battery(nb_echantillons,nb_livreurs,i,size_city,coord,nb_commandes)
+        out = cl.test_battery(nb_echantillons,nb_livreurs,i,size_city,coord,nb_commandes)
         y.append(out[0])
-        yerrorbar.append(out[1])
+        yerr.append(out[1])
     outx = np.array(x)
     outy = np.array(y)
-    outery = np.array(yerrobar)
+    outery = np.array(yerr)
     return (outx,outy,outery)
 
-def tab_graph_construction_nbcmds(size_city,charge_max,nb_livreurs,plage):
+def tab_graph_construction_nbcmds(size_city,charge_max,nb_livreurs,plage,nb_echantillons):
     """construit les deux tableaux nécessaires à la construction du graphe d'étude du nombre nécessaires de livreurs - plage ) nb max de livreurs avec lequel on va tester (inclus)"""
     x = []
     y = []
@@ -48,10 +52,12 @@ def tab_graph_construction_nbcmds(size_city,charge_max,nb_livreurs,plage):
     for i in range(1,(plage+1)):
         coord = (rd.randint(0,size_city),rd.randint(0,size_city))
         x.append(i)
-        out = test_battery(nb_echantillons,nb_livreurs,charge_max,size_city,coord,i)
+        out = cl.test_battery(nb_echantillons,nb_livreurs,charge_max,size_city,coord,i)
         y.append(out[0])
         yerrorbar.append(out[1])
     outx = np.array(x)
     outy = np.array(y)
     outery = np.array(yerrobar)
     return (outx,outy,outery)
+
+print(tab_graph_construction_nbliv(10,10,10,5,10))
