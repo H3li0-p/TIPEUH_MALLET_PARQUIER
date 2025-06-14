@@ -1,6 +1,6 @@
 import graph_carre as gc
 
-def creer_tab_voisins(g,commandes):
+def creer_tab_voisins(g,commandes): #0(n^2ln(n)) avec n = nb commandes
     """Crée un dictionnaire à partir des sommets à visiter, les clés sont les sommets de la liste de commandes,
     et les valeurs associée sont une liste des autres sommets à visiter, par ordre croissant de distance au sommet courant"""
     tabvoisins = {}
@@ -39,14 +39,14 @@ def DBSCA(graph,commandes,nb_max_elt,grain_depart,grain_div):
 
 
 #dbsca classique
-def DBSCA_classique(graph,commandes,nb_max_elt,grain):
+def DBSCA_classique(graph,commandes,nb_max_elt,grain): #n^2 (recursivité) + n^2ln(n) (n = nb cmds)
     out = []
     voisins = creer_tab_voisins(graph,commandes)
     visited = [0 for _ in range((graph.get_side_l())**2)]
     resto = graph.get_resto()
     visited[resto] = 1
     to_recheck = [] #indice des clusters surs lequels relancer le dbsca
-    for elt in voisins.keys():
+    for elt in voisins.keys(): #boucle sur les cmds (n)
         #print(elt)
         if visited[elt] == 0:
             #visited[elt] = 1
@@ -58,7 +58,7 @@ def DBSCA_classique(graph,commandes,nb_max_elt,grain):
     return (out,to_recheck)
 
 #dbscarec
-def dbscarec(sommet,voisins,visited,grain):
+def dbscarec(sommet,voisins,visited,grain): #pire des cas - n sommets
     visited[sommet] = 1 #surveiller la propagation de visited dans les appels rec
     #print(voisins[sommet])
    # print("")
@@ -72,7 +72,7 @@ def dbscarec(sommet,voisins,visited,grain):
     acc_out.append(sommet)
     return acc_out
 
-def aux_n_v(ind,visited,out,nb_commandes,voisins):#à optimiser
+def aux_n_v(ind,visited,out,nb_commandes,voisins):#à optimiser - n^2 (nb_commandes)
     """construit la liste du parcours glouton naiv_parcours, sauf le dernier maillon entre le dernier indice et 0 (fait dans la fonction glouton_parcours - définition des variables dans la doc de la fonction glouton_parcours)"""
     visited[ind] = True
     #print("in boucle",out)
@@ -103,7 +103,7 @@ def glouton_parcours(graph,command_list,start):
     out.append(start) #on prend le tout dernier sommet ajouté, et on le lie à start
     return out
 
-def parcours_resto(graph,commandes,nb_livreurs,charge_max):
+def parcours_resto(graph,commandes,nb_livreurs,charge_max): #n^2ln(n) - DBSCA
     """entree : liste de commandes, nb de livreurs, charge max en un parcours
 sortie dictionnaire - clé numéro de livreur - liste de trajets à effectuer -[position resto - à visiter 1--- à visiter (n-1) - position resto]"""
     #etape1 = faire les clusters -heuristique de démarrage à préciser et à affiner
@@ -201,10 +201,9 @@ def test4(nb_livreurs,capacity,size_city,resto,nb_commandes):
     cmds = gc.commandes_tab(g,nb_commandes)
     print(cmds,"\n")
     dico = parcours_resto(g,cmds,nb_livreurs,capacity)
-    tmps_pr_maison,time_avg = gc.time_to_deliver(g,dico,100,1)
+    tmps_pr_maison,time_avg = gc.time_to_deliver(g,dico,100,10)
     for client in tmps_pr_maison.keys():
         print(client," : ",tmps_pr_maison[client],"\n")
     print(time_avg)
-
 
 test4(3,3,10,(3,6),16)
