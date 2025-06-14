@@ -2,7 +2,7 @@ import random as rd
 
 
 class graph_carre:
-    
+
     def __init__(self,n):
         self.side = n
         self.mat = [[(k*n + i) for i in range(n)] for k in range(n)]
@@ -13,7 +13,7 @@ class graph_carre:
 
     def get_side_l(self):
         return self.side
-    
+
     def get_resto(self):
         return self.restaurant
 
@@ -39,7 +39,7 @@ def dist_xy(g,u,v):
     xu,yu = coords(g,u)
     xv,yv = coords(g,v)
     return xu-xv,yu-yv
-        
+
 
 def dist_chemin(g,path):
     i = 0
@@ -78,7 +78,7 @@ def test(g):
     for i in range(3):
         while u in commandes or u == g.get_resto():
             u = rd.randint(0,n)
-            
+
         commandes.append(u)
     chemin = trajet(g,commandes)
     return chemin
@@ -113,12 +113,12 @@ def time_to_deliver(g,attrib,longueur,vitesse):
             current = resto
             for client in groupes:
                 tps += dist(g,current,client)*longueur/vitesse
-                
+
                 if client != resto:
                     temps_par_maison[client] = tps
 
                 time += tps
                 current = client
-            
+
     return temps_par_maison,time/len(temps_par_maison)
 
