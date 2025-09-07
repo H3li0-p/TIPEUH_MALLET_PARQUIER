@@ -55,7 +55,7 @@ def tab_graph_construction_nbcmds(size_city,charge_max,nb_livreurs,plage,nb_echa
     yerrobar = []
     for i in range(1,(plage+1)):
         print("nb commandes :",i)
-        coord = (rd.randint(0,size_city),rd.randint(0,size_city))
+        coord = (size_city//2,size_city//2)
         x.append(i)
         out = cl.test_battery(nb_echantillons,nb_livreurs,charge_max,size_city,coord,i)
         y.append(out[0])
@@ -70,22 +70,29 @@ def tab_graph_construction_nbech(size_city,charge_max,nb_commandes,nb_livreurs,p
     x = []
     y = []
     yerr = []
-    for i in range(1,(plage+1)):
-        print("nb echantillons :",i)
-        coord = (rd.randint(0,size_city-1),rd.randint(0,size_city-1))
+
+    temps = []
+    for i in range(plage+1):
+        print(i)
+        temps.append(cl.test4bis(nb_livreurs,charge_max,size_city, (size_city//2,size_city//2),nb_commandes))
+        temps_np = np.array(temps)
+        avg = np.mean(temps_np)
+        incertitude = np.std(temps_np)/np.sqrt(i)
         x.append(i)
-        te = t.time()
-        out = cl.test_battery(i,nb_livreurs,charge_max,size_city,coord,nb_commandes)
-        print(t.time()-te)
-        y.append(out[0])
-        yerr.append(out[1])
+        y.append(avg)
+        yerr.append(incertitude)
+
     outx = np.array(x)
     outy = np.array(y)
     outery = np.array(yerr)
     return (outx,outy,outery)
 
-test1 = tab_graph_construction_nbech(100,10,100,10,300)
-print(test1)
+test1 = tab_graph_construction_nbech(100,10,100,10,500)
+test2 = tab_graph_construction_nbech(100,10,100,10,500)
+test3 = tab_graph_construction_nbech(100,10,100,10,500)
+#print(test1)
 
 plt.plot(test1[0],test1[1],'xr')
+plt.plot(test2[0],test2[1],'xg')
+plt.plot(test3[0],test3[1],'xb')
 plt.show()

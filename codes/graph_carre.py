@@ -5,7 +5,7 @@ class graph_carre:
 
     def __init__(self,n):
         self.side = n
-        self.mat = [[(k*n + i) for i in range(n)] for k in range(n)]
+        self.mat = [[(k*n + i) for i in range(n)] for k in range(n)] #? intéret ?
         self.restaurant = 0
 
     def get_mat(self):
@@ -88,15 +88,32 @@ def verify(g,res):
     for i in permutations(res):
         print(i,dist_chemin(g,i))
 
+def insert_sorted(liste,elt):
+    """insertion d'un elt dans une liste triée par ordre croissant"""
+    n = len(liste)
+    liste.append(elt)
+    #print(liste[n])
+    while (n>0) and (elt <= liste[n-1]): # pas a la bonne place par rapport à l'elt d'avant
+        liste[n] = liste[n -1]  #decalage de un terme
+        #print(liste)
+        n -= 1
+        #print(n)
+    liste[n] = elt
 
-def commandes_tab(g,n):
-    p = (g.get_side_l()**2)-1
-    u = rd.randint(0,p)
+def commandes_tab(g,n): #à oprimiser - ou forcer à prendre les derniers ? = non, cela conduirait à une non uniformité deschances de tiret tel ou tel sommet
+
+    p = ((g.get_side_l())**2)
+    assert(n < p) #sinon le programme ne termine pas
+
     commandes = []
+    added = [False for _ in range(p)] #pour suivre les sommets déja sélectionnés
+    added[g.get_resto()] = True #pour ne pas que le resto soit un sommet sélectionné
+    u = rd.randint(0,p-1)
     for i in range(n):
-        while u in commandes or u == g.get_resto():
-            u = rd.randint(0,p)
-        commandes.append(u)
+        while added[u]:
+            u = rd.randint(0,p-1)
+        added[u] = True
+        insert_sorted(commandes,u)
     return commandes
 
 def time_to_deliver(g,attrib,longueur,vitesse):
@@ -122,3 +139,17 @@ def time_to_deliver(g,attrib,longueur,vitesse):
 
     return temps_par_maison,time/len(temps_par_maison)
 
+g = graph_carre(10)
+print(commandes_tab(g,10))
+
+def test_dico():
+    tabtest = [1,2,3,5,6,7,8,9]
+    print(dico_search(tabtest,4))
+    print(dico_search(tabtest,1))
+    print(dico_search(tabtest,9))
+    print(dico_search(tabtest,-1))
+    print(dico_search(tabtest,10))
+    print(dico_search(tabtest,3))
+
+#insert_sorted(tabtest,-1)
+#print(tabtest)
