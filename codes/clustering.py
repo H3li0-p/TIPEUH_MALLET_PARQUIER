@@ -35,11 +35,10 @@ def creer_tab_voisins(g,commandes): #0(n^2ln(n)) avec n = nb commandes
 
     return tabvoisins
 
-def filtrage_voisins(commandes_base,voisins_complet,resto,g):
+def filtrage_voisins(commandes_base,voisins_complet,resto,g): #complexité en n^2, n^3 au pire à cause du in
     """filtre le dictionnaire général des voisins selon la liste de commande et renvoie un dictionnaire réduit correspondant
     resto = False : ne conserve pas les coordonées du resto
-    resto = True : conserve les coordonées du resto
-    ATTENTION : il est nécessaire que commandes_base soit triée par ordre croissant (recherche dichotomique effectuée"""
+    resto = True : conserve les coordonées du resto"""
     voisins = {}
     commandes = commandes_base.copy()
     if resto: #si on a besoin de la distance au resto
@@ -53,10 +52,10 @@ def filtrage_voisins(commandes_base,voisins_complet,resto,g):
         voisins[elt] = tmp
         #print("voisins[elt]",voisins[elt],"\n")
         ind = 0
-        while ind < len(voisins[elt]): #on verifie que tout les points voisins de elt sont bien dans la liste de commandes - recherche dicho car la table des commandes sera toujours triée
+        while ind < len(voisins[elt]): #on verifie que tout les points voisins de elt sont bien dans la liste de commandes
             pt = ((voisins[elt])[ind])
             t = dico_search(commandes,(pt[0]))
-            if t:
+            if (pt[0]) in commandes:
                 ind += 1
             else:
                 l = voisins[elt]
@@ -86,7 +85,6 @@ def DBSCA_classique(graph, commandes, nb_max_elt, grain, voisins_complet): #n^2 
     voisins_complet ="""
     p = (graph.get_side_l())**2
     out = []
-    commandes.sort()
     """inutile au tour 1, a mettre en parametre"""
     voisins = filtrage_voisins(commandes,voisins_complet,False,graph) #on extrait de la grande table des voisins ce qui est necessaire
 
@@ -161,7 +159,6 @@ sortie dictionnaire - clé numéro de livreur - liste de trajets à effectuer -[
     #etape2 = pour chaque cluster, trouver le chemin à effectuer
     parcours = []
     for ind in range(len(cluster)):
-        (cluster[ind]).sort() #important pour le bon fonctionnement de la fonction de filtrage
         parc = glouton_parcours(graph,cluster[ind],resto,voisins)
 
         distance = gc.dist(graph,resto,parc[1]) #on prend le premier sommet différent du resto (c'est le plus proche)
@@ -266,7 +263,7 @@ def test_battery(n,nb_livreurs,charge_max,taille_ville,coos_resto,nb_commandes):
     incertitude = np.std(temps_np)/np.sqrt(n)
     return avg,incertitude
 
-#print(test_battery(1000,3,3,10,(3,6),10))
+print(test_battery(1,3,3,10,(3,6),10))
 
 def test():
     g = gc.graph_carre(10)
@@ -294,4 +291,3 @@ def test():
     """
 
 #réflexion sur le passage des voisins construits pour le DBSCA ...
-#faire un sort de la liste entre chaque passage est assez coûteux, mais il est nécessaire pour le bon fonctionnement de l'algo de filtrage qui fonctionne avec une recherche dicho ... est ce qu'il ne vaut mieux pas simplement se servir du in en pyhton
