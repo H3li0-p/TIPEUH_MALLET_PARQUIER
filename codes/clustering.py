@@ -1,6 +1,15 @@
 import numpy as np
 import graph_carre as gc
 
+def nth_root(a,n):
+    return np.power(a,(1/n))
+
+def nouveau_grain(grain,ch_max,nb):
+    """Permet un calcul plus fin du grain lors des appels récursif du dbsca"""
+    #A n'utiliser que si le grain est supérieur à 1
+    assert(grain > 1)
+    return int(np.floor(nth_root(nb/ch_max,n_rate)))
+
 def dico_search(tab,elt):
     """effectue une recherche dichotomique dans la liste de elt, et renvoie True si elle est présente, False sinon"""
     inf = 0
@@ -64,7 +73,7 @@ def filtrage_voisins(commandes_base,voisins_complet,resto,g): #complexité en n^
 
     return voisins
 
-def DBSCA(graph,commandes,nb_max_elt,grain_depart,grain_div, voisins): #fonction récursive
+def DBSCA(graph,commandes,nb_max_elt,grain_depart, voisins): #fonction récursive
     """fait les groupes de livraison pour les commandes avec des groupes d'au plus nb_max_elt à partir de la liste de commandes, de graph, et d'un grain de départ"""
     #ne relancer que sur les groupes de trop grande taille
     #que contient commande ?
@@ -74,8 +83,16 @@ def DBSCA(graph,commandes,nb_max_elt,grain_depart,grain_div, voisins): #fonction
         return liste_clust
     else:
         for elt in to_check:
-            liste_finale = DBSCA(graph,elt,nb_max_elt,(grain_depart/grain_div),grain_div,v_new) #tant que les groupes sont trop grands, on relance le dbsca dessus de manière récursive
-            liste_clust.extend(liste_finale)
+            ##
+            if (grain > 1):
+                nb = len(elt)
+                grain = nouveau_grain(grain_depart,nb_max_elt,nb)
+                
+                liste_finale = DBSCA(graph,elt,nb_max_elt,grain,v_new) #tant que les groupes sont trop grands, on relance le dbsca dessus de manière récursive
+                liste_clust.extend(liste_finale)
+            ##
+            else:
+            """Cas particulier grain = 1"""
         return liste_clust
 
 #dbsca classique

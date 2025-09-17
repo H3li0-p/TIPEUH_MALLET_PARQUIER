@@ -28,6 +28,16 @@ def coords(g,u):
     n = g.get_side_l()
     return(u//n,u%n)
 
+def sommet(g,x,y):
+    """Obtiens un sommet de g à partir de ses coordonnées"""
+    mat = g.get_mat()
+    try:
+        return (mat[x][y])
+    except:
+        print("Error, vertex not in graph")
+        return -1
+    
+
 def dist(g,u,v):
     """Distance absolue entre 2 points"""
     xu,yu = coords(g,u)
