@@ -21,11 +21,9 @@ def tab_graph_construction_nbliv(size_city,charge_max,nb_commandes,plage,nb_echa
     yerr = []
     for i in range(1,(plage+1)):
         print("nb liveurs :",i)
-        coord = (size_city//2,size_city//2)
+        coord = (rd.randint(0,size_city-1),rd.randint(0,size_city-1))
         x.append(i)
-        te = t.time()
         out = cl.test_battery(nb_echantillons,i,charge_max,size_city,coord,nb_commandes)
-        print(t.time()-te)
         y.append(out[0])
         yerr.append(out[1])
     outx = np.array(x)
@@ -40,7 +38,7 @@ def tab_graph_construction_cmax(size_city,nb_commandes,nb_livreurs,plage,nb_echa
     yerr = []
     for i in range(1,(plage+1)):
         print("charge max :",i)
-        coord = (size_city//2,size_city//2)
+        coord = (rd.randint(0,size_city),rd.randint(0,size_city))
         x.append(i)
         out = cl.test_battery(nb_echantillons,nb_livreurs,i,size_city,coord,nb_commandes)
         y.append(out[0])
@@ -72,27 +70,29 @@ def tab_graph_construction_nbech(size_city,charge_max,nb_commandes,nb_livreurs,p
     x = []
     y = []
     yerr = []
-    for i in range(1,(plage+1)):
-        print("nb echantillons :",i)
-        #coord = (rd.randint(0,size_city-1),rd.randint(0,size_city-1))
-        coord = (size_city//2,size_city//2)
+
+    temps = []
+    for i in range(plage+1):
+        print(i)
+        temps.append(cl.test4bis(nb_livreurs,charge_max,size_city, (size_city//2,size_city//2),nb_commandes))
+        temps_np = np.array(temps)
+        avg = np.mean(temps_np)
+        incertitude = np.std(temps_np)/np.sqrt(i)
         x.append(i)
-        te = t.time()
-        out = cl.test_battery(i,nb_livreurs,charge_max,size_city,coord,nb_commandes)
-        print(t.time()-te)
-        y.append(out[0])
-        yerr.append(out[1])
+        y.append(avg)
+        yerr.append(incertitude)
+
     outx = np.array(x)
     outy = np.array(y)
     outery = np.array(yerr)
     return (outx,outy,outery)
 
-test2 = tab_graph_construction_nbliv(50,10,150,30,400)
-
-
-#test1 = tab_graph_construction_nbech(50,10,100,10,500)
+test1 = tab_graph_construction_nbech(100,10,100,10,500)
+test2 = tab_graph_construction_nbech(100,10,100,10,500)
+test3 = tab_graph_construction_nbech(100,10,100,10,500)
 #print(test1)
-plt.plot(test2[0],(test2[1]/60),'xr')
-plt.show()
-matplotlib.pyplot.errorbar(test2[0], (test2[1]/60), yerr=(test2[2]/60),fmt = 'xr')
+
+plt.plot(test1[0],test1[1],'xr')
+plt.plot(test2[0],test2[1],'xg')
+plt.plot(test3[0],test3[1],'xb')
 plt.show()
