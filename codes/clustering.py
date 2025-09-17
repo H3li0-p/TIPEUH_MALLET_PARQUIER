@@ -209,7 +209,7 @@ def test4bis(nb_livreurs,capacity,size_city,resto,nb_commandes):
     cmds = gc.commandes_tab(g,nb_commandes)
 
     dico = parcours_resto(g,cmds,nb_livreurs,capacity)
-    tmps_pr_maison,time_avg = gc.time_to_deliver(g,dico,100,10)
+    tmps_pr_maison,time_avg = gc.time_to_deliver(g,dico,100,9)
     return time_avg
 
 #test4(3,3,10,(3,6),16)
