@@ -29,14 +29,13 @@ def coords(g,u):
     return(u//n,u%n)
 
 def sommet(g,x,y):
-    """Obtiens un sommet de g à partir de ses coordonnées"""
-    mat = g.get_mat()
-    try:
-        return (mat[x][y])
+    """A partir des coordonées renvoie le sommet correspondant"""
+    cote = g.get_side()
+    try: (x < cote)&&(y < cote)
+        return (cote*y + x)
     except:
-        print("Error, vertex not in graph")
-        return -1
-    
+        raise(ValueError,"ce ne sont pas des coordonées valides !")
+
 
 def dist(g,u,v):
     """Distance absolue entre 2 points"""
