@@ -90,14 +90,11 @@ def DBSCA(graph,commandes,nb_max_elt,grain_depart, voisins): #fonction récursiv
         return liste_clust
     else:
         for elt in to_check:
-            if (grain > 1):
-                nb = len(elt)
-                grain = nouveau_grain(grain_depart,nb_max_elt,nb)
+            nb = len(elt)
+            grain = nouveau_grain(grain_depart,nb_max_elt,nb)
 
-                liste_finale = DBSCA(graph,elt,nb_max_elt,grain,v_new) #tant que les groupes sont trop grands, on relance le dbsca dessus de manière récursive
-                liste_clust.extend(liste_finale)
-            else:
-                pass
+            liste_finale = DBSCA(graph,elt,nb_max_elt,grain,v_new) #tant que les groupes sont trop grands, on relance le dbsca dessus de manière récursive
+            liste_clust.extend(liste_finale)
         return liste_clust
 
 #dbsca classique
@@ -174,7 +171,10 @@ sortie dictionnaire - clé numéro de livreur - liste de trajets à effectuer -[
 
     #etape1 = faire les clusters - heuristique de démarrage à préciser et à affiner
     n = graph.get_side_l()
-    grain_depart = int(n/2) #à affiner
+    nb_commandes = len(commandes)
+
+    #grain de départ = côté * Chmax /(nb_Livreurs * nb_Commandes)
+    grain_depart = n*charge_max/(nb_livreurs*nb_commandes)
     cluster = DBSCA(graph,commandes,charge_max,grain_depart,1.5,voisins)
     resto = graph.get_resto()
 
