@@ -31,11 +31,10 @@ def coords(g,u):
 def sommet(g,x,y):
     """A partir des coordonées renvoie le sommet correspondant"""
     cote = g.get_side()
-    try: (x < cote)&&(y < cote)
+    if (x < cote) and (y < cote) and (0 < x) and (0 < y):
         return (cote*y + x)
-    except:
+    else:
         raise(ValueError,"ce ne sont pas des coordonées valides !")
-
 
 def dist(g,u,v):
     """Distance absolue entre 2 points"""
