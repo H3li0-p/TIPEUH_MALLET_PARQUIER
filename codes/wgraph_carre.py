@@ -5,63 +5,67 @@ class wgraph_carre:
 
     def __init__(self,n,maxD):
         self.side = n
-        self.mat = [[(k*n + i) for i in range(n)] for k in range(n)]
+        self.dmax = maxD
+        self.mat = [[(k*n + i) for i in range(n*n)] for k in range(n*n)]
+        self.dist = ([ [ (1 if i!=j else 0 ) for j in range(n*n)] for i in range(n*n)],False)
         self.restaurant = 0
-        self.edges = [ [ {k-n:1,k-1:1,k+n:1,k+1:1} for k in range(n*n)]]+[[False]]
-        #self.edges = [[ dict([(k-n,rd.randint(1,maxD)) if (k-n>0) else (None,-1),(k-1,rd.randint(1,maxD)) if ((k-1)//n == k//n) else (None,-1), (k+n,rd.randint(1,maxD)) if (k+n<n*n) else (None,-1), (k+1,rd.randint(1,maxD)) if ((k+1)//n == k//n) else (None,-1)]) for k in range(n*n)]] + [[False]]
-
+       
     def get_mat(self):
         return self.mat
     
-    def clear_edges(self):
-        E = self.edges
-        n = self.side
-        cE = [ {} for k in range(n*n)]
-        if (E[1]):
-            print("Edges already cleared, nothing to do")
-        else:
-            for k in range(n*n):
-                for elt in E[0][k].keys():
-                    if elt:
-                        cE[k][elt] = E[0][k][elt]
-                    else:
-                        pass
-        self.edges = [cE]+[[True]]
-        print("Edges successfully cleared")
-            
-    
-    def get_edges(self):
-        E = self.edges
-        if (E[1]):
-            return E[0]
-        else:
-            self.clear_edges()
-            cE = self.edges
-            return cE[0]
+    def set_dist(self): #initialise la matrice des distances
+        D = self.dist[0]
+        s = self.side
+        n = s*s
+        # nombre de sommets
+        dmax = self.dmax
+        
+        for i in range(n):
+            for j in range(i):
+                d = 1e9
+                if (j == i + 1) or (j == i-1): #voisin de droite ou de gauche de i
+                    if (j//s== i//s): #on vérifie que j est bien voisin de i, i.e ils sont sur la même ligne (cas i au "bord" du graphe)
+                        d = rd.randint(1,dmax)
+                elif (j == i - s) or (j == i + s): #voisin du dessus ou dessous de i
+                    if (0<=j<n):
+                        d = rd.randint(1,dmax)
+                D[i][j] = (i!=j) * d
+                D[j][i] = D[i][j]
+        self.dist = (D,True)
                 
+    def get_dist(self):
+        if not (self.dist[1]):
+            self.set_dist()
+        return self.dist[0]
+    
     def get_side_l(self):
         return self.side
 
     def get_resto(self):
         return self.restaurant
-    
-    def set_weights(self,maxD):
-        E = self.edges
-        n = self.side
-        for k in range(n*n):
-            for elt in E.keys():
-                if (elt>=0) and (elt<n*n) and (elt//n == k//n):
-                    E[k] = rd.randint(1,maxD)
-                else:
-                    pass
-        self.edges = E
-                    
 
     def set_restaurant(self,x,y):
         try:
             self.restaurant = self.mat[x][y]
         except:
             print("Failed to define restaurant (out of range)")
+
+def floyd_warshall(g): #Implémentation de l'algorithme de floyd-warhshall
+    s = g.get_side_l()
+    n =  s*s #nombre de sommets du graphe 
+    distance = g.get_dist()#Matrice des distances entre les sommets
+    prev = [[0 for _ in range(n)] for _ in range(n)] #matrice gardant en mémoire, pour chaque couple de sommets (i,j), quel est le dernier sommet k du chemin i ->* j tel que la distance pour ce chemin soit la plus courte possible
+
+    for k in range(n):
+        for i in range(n):
+            for j in range(n):
+                d1 = distance[i][j]
+                d2 = distance[i][k] + distance[k][j]
+                
+                distance[i][j] = min(d1,d2)
+                
+    return distance
+
 
 def coords(g,u):
     """Obtiens les coordonnées du sommet u dans le graphe g"""
@@ -76,115 +80,3 @@ def sommet(g,x,y):
     except:
         print("Error, vertex not in graph")
         return -1
-    
-
-def dist(g,u,v):
-    """Distance absolue entre 2 points"""
-    xu,yu = coords(g,u)
-    xv,yv = coords(g,v)
-    return max(xu-xv,xv-xu) + max(yu-yv,yv-yu)
-
-def dist_xy(g,u,v):
-    """distance pour aller de u à v suivant x et y (algébrique)"""
-    xu,yu = coords(g,u)
-    xv,yv = coords(g,v)
-    return xu-xv,yu-yv
-
-
-def dist_chemin(g,path):
-    i = 0
-    d = dist(g,g.get_resto(),path[0])
-    while (i < len(path)-1):
-        d += dist(g,path[i],path[i+1])
-        i+=1
-    return d
-
-def permutations(maisons):
-    """calcule les 3! = 6 trajets possible pour relier 3 maisons : le coût est en 0(n!) mais cette fonction sera toujours appliquée pour 3 éléments seulement"""
-    n = len(maisons)
-    p = [maisons]
-    for k in range(0,n-1):
-        for i in range(0, len(p)):
-            z = p[i][:]
-            for c in range(0,n-k-1):
-                z.append(z.pop(k))
-                if (z not in p):
-                    p.append(z[:])
-    return p
-
-
-def trajet(g,maisons):
-    """ "bruteforce" le meilleur trajet pour livrer 3 clients"""
-    out = []
-    paths = permutations(maisons)
-    d = [dist_chemin(g,s) for s in paths]
-    out = paths[d.index(min(d))]
-    return out
-
-def test(g):
-    n = (g.get_side_l()**2)-1
-    commandes = []
-    u = rd.randint(0,n)
-    for i in range(3):
-        while u in commandes or u == g.get_resto():
-            u = rd.randint(0,n)
-
-        commandes.append(u)
-    chemin = trajet(g,commandes)
-    return chemin
-
-def verify(g,res):
-    print(res)
-    for i in permutations(res):
-        print(i,dist_chemin(g,i))
-
-def insert_sorted(liste,elt):
-    """insertion d'un elt dans une liste triée par ordre croissant"""
-    n = len(liste)
-    liste.append(elt)
-    #print(liste[n])
-    while (n>0) and (elt <= liste[n-1]): # pas a la bonne place par rapport à l'elt d'avant
-        liste[n] = liste[n -1]  #decalage de un terme
-        #print(liste)
-        n -= 1
-        #print(n)
-    liste[n] = elt
-
-def commandes_tab(g,n): #à oprimiser - ou forcer à prendre les derniers ? = non, cela conduirait à une non uniformité deschances de tiret tel ou tel sommet
-
-    p = ((g.get_side_l())**2)
-    assert(n < p) #sinon le programme ne termine pas
-
-    commandes = []
-    added = [False for _ in range(p)] #pour suivre les sommets déja sélectionnés
-    added[g.get_resto()] = True #pour ne pas que le resto soit un sommet sélectionné
-    u = rd.randint(0,p-1)
-    for i in range(n):
-        while added[u]:
-            u = rd.randint(0,p-1)
-        added[u] = True
-        insert_sorted(commandes,u)
-    return commandes
-
-def time_to_deliver(g,attrib,longueur,vitesse):
-    """On suppose que la vitesse des livreurs est constante et identique pour chaque livreur (ce sont des pros)"""
-    """Renvoie pour chaque sommet à visiter du graphe (client à visiter) le temps de livraison de ce client ainsi que le temps moyen de livraison"""
-    temps_par_maison = {}
-    resto = g.get_resto()
-    time = 0
-    for livreur in attrib.keys():
-        itineraire = attrib[livreur]
-        #print(livreur,":",itineraire)
-        tps = 0
-        for groupes in itineraire:
-            current = resto
-            for client in groupes:
-                tps += dist(g,current,client)*longueur/vitesse
-
-                if client != resto:
-                    temps_par_maison[client] = tps
-
-                time += tps
-                current = client
-
-    return temps_par_maison,time/len(temps_par_maison)
