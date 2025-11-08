@@ -54,7 +54,7 @@ def floyd_warshall(g): #Implémentation de l'algorithme de floyd-warhshall
     s = g.get_side_l()
     n =  s*s #nombre de sommets du graphe 
     distance = g.get_dist()#Matrice des distances entre les sommets
-    prev = [[0 for _ in range(n)] for _ in range(n)] #matrice gardant en mémoire, pour chaque couple de sommets (i,j), quel est le dernier sommet k du chemin i ->* j tel que la distance pour ce chemin soit la plus courte possible
+    interm = [[-1 for _ in range(n)] for _ in range(n)] #matrice gardant en mémoire, pour chaque couple de sommets (i,j), quel est le dernier sommet k du chemin i ->* j tel que la distance pour ce chemin soit la plus courte possible
 
     for k in range(n):
         for i in range(n):
@@ -62,9 +62,16 @@ def floyd_warshall(g): #Implémentation de l'algorithme de floyd-warhshall
                 d1 = distance[i][j]
                 d2 = distance[i][k] + distance[k][j]
                 
-                distance[i][j] = min(d1,d2)
+                if (d2<d1):
+                    interm[i][j] = k
+                    distance[i][j] = d2
                 
-    return distance
+    return distance,interm
+
+def reconstruction_chemin(g,interm,u,v):
+    n = (g.get_side_l)**2
+    assert( (u>=0) and (u<n) and (v>=0) and (v<n))
+    
 
 
 def coords(g,u):
