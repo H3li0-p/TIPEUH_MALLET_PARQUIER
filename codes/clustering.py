@@ -79,7 +79,17 @@ def filtrage_voisins(commandes_base,voisins_complet,resto,g): #complexité en n^
 
     return voisins
 
-def DBSCA(graph,commandes,nb_max_elt,grain_depart, voisins): #fonction récursive
+def length_sorted(tab):
+    """trie un tableau selon la longueur de ses elements en ordre décroissant - nécessite un tableau d'elements ayant une longueur (= renvoyant un résultat par la fonction len)"""
+    support = []
+    for ind in range(len(tab)):
+        support.append((tab[ind],len(tab[ind])))
+    print(support)
+    support = sorted(support,reverse = True,key = lambda pt: pt[1])
+    for ind in range(len(tab)):
+        tab[ind] = support[ind][0]
+
+def DBSCA(graph,commandes,nb_max_elt,grain_depart, voisins,nb_livreurs): #fonction récursive
     """fait les groupes de livraison pour les commandes avec des groupes d'au plus nb_max_elt à partir de la liste de commandes, de graph, et d'un grain de départ
     grain toujours entier"""
     #ne relancer que sur les groupes de trop grande taille
@@ -87,12 +97,28 @@ def DBSCA(graph,commandes,nb_max_elt,grain_depart, voisins): #fonction récursiv
     alpha = 1/2
     liste_clust,to_check,v_new = DBSCA_classique(graph,commandes,nb_max_elt,grain_depart,voisins)
     if len(to_check) == 0:
+        #amélioration : si il y a moins de groupes que de livreurs
+        ind = len(liste_clust) #pour actualiser le grain dès le départ
+        while (len(liste_clust) < nb_livreurs): #tant qu'il n'y a pas assez de groupes
+
+            print("modification used !")
+            if (ind == len(liste_clust)): #si on a déjà subdivisé tout les groupes
+                print("reset")
+                g_new = nouveau_grain(grain_depart,nb_max_elt,nb,alpha)
+                length_sorted(liste_clust) #trie les elts selon leur taille
+                ind = 0
+
+            to_split = liste_clust.pop(ind) #on sort l'elt que l'on divise
+            liste_finale = DBSCA(graph,to_split,nb_max_elt,grain,v_new,nb_livreurs) #on divise l'elt'
+            liste_clust.extend(liste_finale)
+            ind += 1
+
         return liste_clust
     else:
         for elt in to_check:
             nb = len(elt)
             grain = nouveau_grain(grain_depart,nb_max_elt,nb,alpha)
-            liste_finale = DBSCA(graph,elt,nb_max_elt,grain,v_new) #tant que les groupes sont trop grands, on relance le dbsca dessus de manière récursive
+            liste_finale = DBSCA(graph,elt,nb_max_elt,grain,v_new,nb_livreurs) #tant que les groupes sont trop grands, on relance le dbsca dessus de manière récursive
             liste_clust.extend(liste_finale)
         return liste_clust
 
@@ -132,19 +158,19 @@ def dbscarec(sommet,voisins,visited,grain): #pire des cas - n sommets
     acc_out.append(sommet)
     return acc_out
 
-def aux_n_v(ind,visited,out,nb_commandes,voisins):#à optimiser - n^2 (nb_commandes)
+def aux_n_v(ind,visited,out,nb_commandes,voisins,dist):#à optimiser - n^2 (nb_commandes)
     """construit la liste du parcours glouton naiv_parcours, sauf le dernier maillon entre le dernier indice et 0 (fait dans la fonction glouton_parcours - définition des variables dans la doc de la fonction glouton_parcours)"""
     visited[ind] = True
     if (len(out) == nb_commandes): # = contient tout les sommets de la liste cluster car on ne peut pas avoir un sommet en double
-        return out
+        return (out,dist)
     else:
         for elt in voisins[ind]: #pour tout les voisins
             if (visited[elt[0]] == False): #non visités
                 out.append(elt[0])
-                return aux_n_v(elt[0],visited,out,nb_commandes,voisins) #on rela,ce l'appel pour trouver le voisin le plus proche
+                return aux_n_v(elt[0],visited,out,nb_commandes,voisins,(dist + elt[1])) #on rela,ce l'appel pour trouver le voisin le plus proche
 
         out.append(ind) #on ajoute le sommet courant
-        return out
+        return (out,dist)
 
 def glouton_parcours(graph,command_list,start, voisins_complet):
     """algo glouton génèrant à partir du couple (command_list,nb_commandes) (command_list = liste des commandes construite avec la fonction random_order + nb_commandes = le nombres de commandes soit le nombre de 1 dans la liste en excluant le resto (nb de 1 moins un) construit avec la fonction random_order) le parcours du plus proche voisin (0 = départ) dans l'objet UD_Graph graph.
@@ -156,12 +182,117 @@ def glouton_parcours(graph,command_list,start, voisins_complet):
 
     visited = {elt:False for elt in command_list} #dictionnaire de suivi des sommets parcourus
 
-    out = aux_n_v(start,visited,[start],(nb_command + 1),voisins) #parcours récursif des voisins pour construire le chemin de proche en proche
+    out,d = aux_n_v(start,visited,[start],(nb_command + 1),voisins,0) #parcours récursif des voisins pour construire le chemin de proche en proche
 
     out.append(start) #on prend le tout dernier sommet ajouté, et on le lie à start
-    return out
+    return out,(d + gc.dist(graph,out[len(out) - 2],start))
 
-def parcours_resto(graph,commandes,nb_livreurs,charge_max): #n^2ln(n) - DBSCA
+
+
+def creer_tab_min(voisin_tab,commandes): #réussir à faire la différence entre (u,v) et (v,u)
+    out = {}
+    ind_list = 0
+    ind_sommet = 0
+    while (len(out) < len(commandes)):
+        #print("voisin tab",voisin_tab)
+        if (ind_sommet == len(commandes)):
+            print(ind_list)
+            print(voisin_tab)
+            ind_list += 1
+        other_sommet = voisin_tab[commandes[ind_sommet]][ind_list][0]
+        out[(ind_sommet,other_sommet)] = voisin_tab[commandes[ind_sommet]][ind_list][1]
+        ind_sommet += 1
+
+    out2 = []
+    for elt in out.keys():
+        out2.append((elt,out[elt],False))
+    out2 = sorted(out2,key = lambda pt: pt[1])
+    return out2
+
+def rec_tree_cutting(sommet_courant, bornsup,nb_de_sommets_passes,nb_total_sommets,graph,parcours_actuel,commandes,longueur_du_parcours,tab_arretes_min,tab_visited,start): #nb_total_sommets excluant le fait de revenir au premier
+    """effectue la partie récursive de l'algo décrit dans le fichier Echelle 1 du git"""
+
+    #print("nb_sommets passes",nb_de_sommets_passes)
+    if (nb_de_sommets_passes == nb_total_sommets): #cas de base - descente terminée
+
+        #print("missing ?",parcours_actuel)
+        longueur_tot = (longueur_du_parcours + gc.dist(graph,start,parcours_actuel[len(parcours_actuel)-1]))
+        if (longueur_tot < bornsup):
+            parc2 = parcours_actuel.copy()
+            parc2.append(start)
+            return (parc2,longueur_tot)
+        return ([], (bornsup + 1))
+
+    #sinon vérification de la nécessité de repartir dans la boucle
+    nb_min = longueur_du_parcours
+    ind = 0
+    count = 0
+    while count < (nb_total_sommets - nb_de_sommets_passes): #condition de boucle à vérifier
+        if (not tab_arretes_min[ind][2]):
+            nb_min += tab_arretes_min[ind][1]
+            count += 1
+        ind += 1
+
+    if (nb_min > bornsup): #chemin à ne pas explorer = autre cas d'arrêt
+        #print("nbmin bornsup",nb_min,bornsup,"too long")
+        return([],(bornsup + 1))
+
+    recuperation = [] #liste qui récupère tout le chemin valide
+    #print("tab_visited",tab_visited)
+    for i in commandes:
+        #print("actualisation",i,tab_visited[i])
+        if tab_visited[i] == False:
+            parc = parcours_actuel.copy() #à enlever ensuite
+            parc.append(i)
+            tab_visited[i] = True
+
+            #print("parcours actuel",parc)
+
+            (liste,length) = rec_tree_cutting(i, bornsup, (nb_de_sommets_passes + 1), nb_total_sommets, graph,parc,commandes,(longueur_du_parcours + gc.dist(graph,sommet_courant,i)),tab_arretes_min,tab_visited,start)
+
+            """if len(liste) > 0:
+                print("liste ?",liste)
+                print("length ?",length)"""
+            tab_visited[i] = False
+            parc.pop()
+
+            #print("length",length)
+            if (length < bornsup):
+                recuperation = liste
+                bornsup = length
+    return(recuperation, bornsup)
+
+
+def tree_cuting(graph,commandes,start,voisins):
+    """implemente l'algo 1 du fichier echelle 1. Partant du tuple de commande construit à partir de random order, donne le parcours optimal ainsi que sa distance"""
+    #preparation pour l'algo récursif
+
+    if (len(commandes) == 1):
+        return ([start,commandes[0],start],(2*gc.dist(graph,start,commandes[0])))
+
+    voisin_tab = filtrage_voisins(commandes,voisins,True,graph)
+    (parcours_bete, bornsup) = glouton_parcours(graph,commandes,start, voisins)
+    tab_arretes_min = creer_tab_min(voisin_tab,commandes) #filtrage depuis le tableau des voisins - indication de si parcourue ou non
+    #print(parcours_bete)
+    tab_visited = {cmd:False for cmd in commandes}
+    tab_visited[start] = True
+
+    #recusivité
+    #sommet_courant, bornsup,nb_de_sommets_passes,nb_total_sommets,graph,parcours_actuel,commandes,longueur_du_parcours,tab_arretes_min
+    (liste_fin,longueur) = rec_tree_cutting(start,bornsup,0,len(commandes),graph, [start], commandes, 0,tab_arretes_min,tab_visited,start) #attention command_tuple - n'est pas sûr que ça soit le bon nb
+    #print("liste_fin",liste_fin,longueur)
+    #print("parcours_glouton",parcours_bete,bornsup)
+
+    #print("dist liste_fin",gc.dist_chemin2(graph,liste_fin))
+    #print("dist parcours_glouton",gc.dist_chemin2(graph,parcours_bete))
+    if (liste_fin == []):
+        return(parcours_bete, bornsup)
+
+    #petit raccordement à faire en fin de fonction
+    return (liste_fin,longueur)
+
+
+def parcours_resto(graph,commandes,nb_livreurs,charge_max): #n^2*ln(n) - DBSCA
     """entree : liste de commandes, nb de livreurs, charge max en un parcours
 sortie dictionnaire - clé numéro de livreur - liste de trajets à effectuer -[position resto - à visiter 1--- à visiter (n-1) - position resto]"""
 
@@ -180,7 +311,7 @@ sortie dictionnaire - clé numéro de livreur - liste de trajets à effectuer -[
     #etape2 = pour chaque cluster, trouver le chemin à effectuer
     parcours = []
     for ind in range(len(cluster)):
-        parc = glouton_parcours(graph,cluster[ind],resto,voisins)
+        parc,dist = tree_cuting(graph,cluster[ind],resto,voisins)
 
         distance = gc.dist(graph,resto,parc[1]) #on prend le premier sommet différent du resto (c'est le plus proche)
         parcours.append((ind,parc)) #à affiner en fct de la taille du cluster / de la distance
@@ -311,6 +442,18 @@ def test():
     print("\nvoisinmodif",voi)
     """
 
+
+def test_5(size_city,resto,nb_commandes):
+    g = gc.graph_carre(size_city)
+    g.set_restaurant(resto[0],resto[1])
+
+    cmds = gc.commandes_tab(g,nb_commandes)
+    #print(cmds)
+
+    voisin_tab = creer_tab_voisins(g,cmds)
+    a = tree_cuting(g,cmds,gc.sommet(g,resto[0],resto[1]),voisin_tab)
+
+#test_5(100,(50,50),11)
 #réflexion sur le passage des voisins construits pour le DBSCA ...
 #n = nouveau_grain(5,3,10,(1/2))
 #sprint("ng",n)

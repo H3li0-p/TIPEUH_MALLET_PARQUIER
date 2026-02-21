@@ -73,13 +73,13 @@ class graph_carre:
         if (nb < len((self.restaurant_liste))):
             (self.restaurant_liste)[nb] = sommet(self.get_side_l(),y,x)
         else:
-            raise(ValueError,"ce restaurant n'existe pas !")
+            raise(ValueError "ce restaurant n'existe pas !")
 
     def verify_livreurs(self):
         count = 0
         for elt in self.get_resto_liste():
             count += len(elt.livreurs)
-        return count = self.nb_livreurs
+        return (count == self.nb_livreurs)
 
 def coords(side,u):
     """Obtiens les coordonnées du sommet u dans le graphe g (de côté side)"""
@@ -174,3 +174,5 @@ g.set_restaurant(0,5,4)
 print(g.get_resto_liste())
 
 l =[(1,0),(3,5),(4,2)]
+
+#new ?

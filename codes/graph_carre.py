@@ -30,7 +30,7 @@ def coords(g,u):
 
 def sommet(g,x,y):
     """A partir des coordonées renvoie le sommet correspondant"""
-    cote = g.get_side()
+    cote = g.get_side_l()
     if (x < cote) and (y < cote) and (0 < x) and (0 < y):
         return (cote*y + x)
     else:
@@ -50,8 +50,18 @@ def dist_xy(g,u,v):
 
 
 def dist_chemin(g,path):
+    """considère le resto absent au début de la liste"""
     i = 0
     d = dist(g,g.get_resto(),path[0])
+    while (i < len(path)-1):
+        d += dist(g,path[i],path[i+1])
+        i+=1
+    return d
+
+def dist_chemin2(g,path):
+    """calcule strictement la distance entre tout les sommets"""
+    i = 0
+    d = 0
     while (i < len(path)-1):
         d += dist(g,path[i],path[i+1])
         i+=1
